@@ -86,3 +86,10 @@ print(x + y)
 x = 5
 y = "John"
 print(x, y)
+
+x = "awesome"
+
+def myfunc():
+  print("Python is " + x)
+
+myfunc()
