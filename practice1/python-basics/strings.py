@@ -25,3 +25,6 @@ print(a[1])
 
 for x in "KBTU":
   print(x)
+
+a = "Hello, World!"
+print(len(a))
