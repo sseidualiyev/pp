@@ -49,3 +49,8 @@ def my_function(fname):
 my_function("Emil")
 my_function("Tobias")
 my_function("Linus")
+
+def my_function(name): # name is a parameter
+  print("Hello", name)
+
+my_function("Emil") # "Emil" is an argument
