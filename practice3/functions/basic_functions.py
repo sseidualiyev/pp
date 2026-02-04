@@ -34,3 +34,8 @@ def get_greeting():
 
 message = get_greeting()
 print(message)
+
+def get_greeting():
+  return "Hello from a function"
+
+print(get_greeting())
