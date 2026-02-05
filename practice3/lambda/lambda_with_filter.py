@@ -6,3 +6,8 @@ nums = [5, 12, 7, 18, 3, 21]
 
 greater_than_10 = list(filter(lambda x: x > 10, nums))
 print(greater_than_10)
+
+words = ["hello", "", "world", "", "python"]
+
+non_empty = list(filter(lambda w: w != "", words))
+print(non_empty)
