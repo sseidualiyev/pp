@@ -17,3 +17,12 @@ pairs = [(1, 3), (4, 1), (2, 2)]
 
 sorted_pairs = sorted(pairs, key=lambda x: x[1])
 print(sorted_pairs)
+
+students = [
+    {"name": "Alice", "score": 85},
+    {"name": "Bob", "score": 92},
+    {"name": "Charlie", "score": 78}
+]
+
+by_score = sorted(students, key=lambda s: s["score"])
+print(by_score)
