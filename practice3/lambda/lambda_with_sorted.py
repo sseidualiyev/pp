@@ -6,3 +6,8 @@ nums = [5, 2, 9, 1, 7]
 
 desc = sorted(nums, key=lambda x: -x)
 print(desc)
+
+words = ["apple", "kiwi", "banana", "fig"]
+
+by_length = sorted(words, key=lambda w: len(w))
+print(by_length)
