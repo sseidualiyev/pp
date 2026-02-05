@@ -78,3 +78,16 @@ my_playlist = Playlist("Favorites")
 my_playlist.add_song("Bohemian Rhapsody")
 my_playlist.add_song("Stairway to Heaven")
 my_playlist.show_songs()
+
+class Person:
+  def __init__(self, name):
+    self.name = name
+
+  def greet(self):
+    print("Hello!")
+
+p1 = Person("Emil")
+
+del Person.greet
+
+p1.greet() # This will cause an error
