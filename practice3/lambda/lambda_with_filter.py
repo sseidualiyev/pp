@@ -16,3 +16,8 @@ words = ["cat", "tiger", "lion", "elephant"]
 
 long_words = list(filter(lambda w: len(w) > 4, words))
 print(long_words)
+
+nums = [-3, 0, 4, -1, 7, -5]
+
+positives = list(filter(lambda x: x > 0, nums))
+print(positives)
