@@ -13,3 +13,6 @@ print(p3.x)
 
 class Person:
   pass
+
+class MyClass:
+  x = 5
