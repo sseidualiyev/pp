@@ -14,3 +14,8 @@ n = int(input("Input number of sides: "))
 side = float(input("Input the length of a side: "))
 area_polygon = (n * side**2) / (4 * math.tan(math.pi / n))
 print("The area of the polygon is:", round(area_polygon, 0))
+
+base = float(input("Length of base: "))
+height = float(input("Height of parallelogram: "))
+area_parallelogram = base * height
+print("Expected Output:", float(area_parallelogram))
