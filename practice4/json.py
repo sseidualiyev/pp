@@ -1,6 +1,4 @@
 import json
-import os
-print(os.getcwd())
 
 with open("sample-data.json") as file:
     data = json.load(file)
