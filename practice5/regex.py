@@ -35,3 +35,9 @@ else:
 s = input("Task 6: ")
 result = re.sub(r"[ ,\.]", ":", s)
 print(result)
+
+# 7
+s = input("Task 7: ")
+parts = s.split("_")
+camel_case = parts[0] + "".join(word.capitalize() for word in parts[1:])
+print(camel_case)
