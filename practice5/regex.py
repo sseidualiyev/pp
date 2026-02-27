@@ -13,3 +13,8 @@ if re.fullmatch(r"ab{2,3}", s):
     print("Match")
 else:
     print("No match")
+
+# 3
+s = input("Task 3: ")
+matches = re.findall(r"[a-z]+_[a-z]+", s)
+print(matches)
