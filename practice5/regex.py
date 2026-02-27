@@ -30,3 +30,8 @@ if re.fullmatch(r"a.*b", s):
     print("Match")
 else:
     print("No match")
+
+# 6
+s = input("Task 6: ")
+result = re.sub(r"[ ,\.]", ":", s)
+print(result)
