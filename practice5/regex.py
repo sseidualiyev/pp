@@ -23,3 +23,10 @@ print(matches)
 s = input("Task 4: ")
 matches = re.findall(r"[A-Z][a-z]+", s)
 print(matches)
+
+# 5
+s = input("Task 5: ")
+if re.fullmatch(r"a.*b", s):
+    print("Match")
+else:
+    print("No match")
