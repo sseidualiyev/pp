@@ -41,3 +41,8 @@ s = input("Task 7: ")
 parts = s.split("_")
 camel_case = parts[0] + "".join(word.capitalize() for word in parts[1:])
 print(camel_case)
+
+# 8
+s = input("Task 8: ")
+split_upper = re.findall(r"[A-Z][a-z]*", s)
+print(split_upper)
