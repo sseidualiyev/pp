@@ -3,11 +3,11 @@ import json
 import os
 
 folder = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(folder, "receipt.txt")
+file_path = os.path.join(folder, "raw.txt")
 
 with open(file_path, "r", encoding="utf-8") as f:
     text = f.read()
-    
+
 # Extract product names (lines before quantity x price)
 product_lines = re.findall(r"\d+\.\s*(.+?)\n\d", text, re.DOTALL)
 products = [p.strip().replace("\n", " ") for p in product_lines]
