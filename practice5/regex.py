@@ -18,3 +18,8 @@ else:
 s = input("Task 3: ")
 matches = re.findall(r"[a-z]+_[a-z]+", s)
 print(matches)
+
+# 4
+s = input("Task 4: ")
+matches = re.findall(r"[A-Z][a-z]+", s)
+print(matches)
