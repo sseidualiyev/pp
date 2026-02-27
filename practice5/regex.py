@@ -46,3 +46,8 @@ print(camel_case)
 s = input("Task 8: ")
 split_upper = re.findall(r"[A-Z][a-z]*", s)
 print(split_upper)
+
+# 9
+s = input("Task 9: ")
+spaced = re.sub(r"([A-Z])", r" \1", s).strip()
+print(spaced)
