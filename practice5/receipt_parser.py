@@ -12,6 +12,9 @@ with open(file_path, "r", encoding="utf-8") as f:
 product_lines = re.findall(r"\d+\.\s*(.+?)\n\d", text, re.DOTALL)
 products = [p.strip().replace("\n", " ") for p in product_lines]
 
+# Remove [RX]- prefix if present
+products = [re.sub(r"^\[RX\]-", "", p).strip() for p in products]
+
 # Extract individual prices
 price_matches = re.findall(r"\d[\d\s]*,\d{2}", text)
 prices = [int(p.replace(" ", "").replace(",", "")) for p in price_matches[:len(products)]]
