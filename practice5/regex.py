@@ -51,3 +51,8 @@ print(split_upper)
 s = input("Task 9: ")
 spaced = re.sub(r"([A-Z])", r" \1", s).strip()
 print(spaced)
+
+# 10
+s = input("Task 10: ")
+snake = re.sub(r"([A-Z])", lambda m: "_" + m.group(1).lower(), s).lstrip("_")
+print(snake)
