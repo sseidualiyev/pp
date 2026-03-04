@@ -2,9 +2,7 @@ import re
 import json
 import os
 
-folder = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(folder, "raw.txt")
-
+file_path = "C:\\Users\\User\\py\\pp\\practice5\\raw.txt"
 with open(file_path, "r", encoding="utf-8") as f:
     text = f.read()
 
