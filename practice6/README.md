@@ -1,0 +1,1 @@
+This is readme file for 6-th practice in PP2 course, examining the file handling, directories, and other built-in functions in python featuring topics such as file handling and other built-in functions
