@@ -36,3 +36,20 @@ def insert_from_csv(file_path):
     conn.commit()
     cur.close()
     conn.close()
+
+
+def insert_from_console():
+    name = input("Enter name: ")
+    phone = input("Enter phone: ")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO phonebook (name, phone) VALUES (%s, %s) ON CONFLICT (name) DO NOTHING",
+        (name, phone)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
