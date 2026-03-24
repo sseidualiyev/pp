@@ -103,3 +103,26 @@ def query_contacts():
 
     cur.close()
     conn.close()
+
+
+def delete_contact():
+    print("1 - Delete by name")
+    print("2 - Delete by phone")
+
+    choice = input("Choose option: ")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    if choice == "1":
+        name = input("Enter name: ")
+        cur.execute("DELETE FROM phonebook WHERE name=%s", (name,))
+
+    elif choice == "2":
+        phone = input("Enter phone: ")
+        cur.execute("DELETE FROM phonebook WHERE phone=%s", (phone,))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
