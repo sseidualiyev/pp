@@ -72,3 +72,34 @@ def update_contact():
     conn.commit()
     cur.close()
     conn.close()
+
+
+
+def query_contacts():
+    print("1 - All contacts")
+    print("2 - Search by name")
+    print("3 - Search by phone prefix")
+
+    choice = input("Choose option: ")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    if choice == "1":
+        cur.execute("SELECT * FROM phonebook")
+
+    elif choice == "2":
+        name = input("Enter name: ")
+        cur.execute("SELECT * FROM phonebook WHERE name ILIKE %s", ('%' + name + '%',))
+
+    elif choice == "3":
+        prefix = input("Enter phone prefix: ")
+        cur.execute("SELECT * FROM phonebook WHERE phone LIKE %s", (prefix + '%',))
+
+    rows = cur.fetchall()
+
+    for row in rows:
+        print(row)
+
+    cur.close()
+    conn.close()
