@@ -126,3 +126,37 @@ def delete_contact():
     cur.close()
     conn.close()
 
+
+
+def main():
+    create_table()
+
+    while True:
+        print("\nPhoneBook Menu:")
+        print("1 - Insert from CSV")
+        print("2 - Insert from console")
+        print("3 - Update contact")
+        print("4 - Query contacts")
+        print("5 - Delete contact")
+        print("0 - Exit")
+
+        choice = input("Choose: ")
+
+        if choice == "1":
+            insert_from_csv("contacts.csv")
+        elif choice == "2":
+            insert_from_console()
+        elif choice == "3":
+            update_contact()
+        elif choice == "4":
+            query_contacts()
+        elif choice == "5":
+            delete_contact()
+        elif choice == "0":
+            break
+        else:
+            print("Invalid choice")
+
+
+if __name__ == "__main__":
+    main()
