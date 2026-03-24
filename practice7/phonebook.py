@@ -53,3 +53,22 @@ def insert_from_console():
     conn.commit()
     cur.close()
     conn.close()
+
+
+def update_contact():
+    name = input("Enter existing name: ")
+    new_name = input("Enter new name (leave blank to skip): ")
+    new_phone = input("Enter new phone (leave blank to skip): ")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    if new_name:
+        cur.execute("UPDATE phonebook SET name=%s WHERE name=%s", (new_name, name))
+
+    if new_phone:
+        cur.execute("UPDATE phonebook SET phone=%s WHERE name=%s", (new_phone, name))
+
+    conn.commit()
+    cur.close()
+    conn.close()
