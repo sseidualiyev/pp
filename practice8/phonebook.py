@@ -188,3 +188,16 @@ def insert_or_update():
     conn.commit()
     cur.close()
     conn.close()
+
+def insert_many():
+    names = ["Ali", "John", "Test"]
+    phones = ["777123456", "abc123", "999888777"]
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("CALL insert_many_users(%s, %s, %s)", (names, phones, None))
+
+    conn.commit()
+    cur.close()
+    conn.close()
