@@ -160,3 +160,18 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def search_pattern():
+    pattern = input("Enter search pattern: ")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM search_contacts(%s)", (pattern,))
+    
+    rows = cur.fetchall()
+    for row in rows:
+        print(row)
+
+    cur.close()
+    conn.close()
