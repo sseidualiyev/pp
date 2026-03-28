@@ -175,3 +175,16 @@ def search_pattern():
 
     cur.close()
     conn.close()
+
+def insert_or_update():
+    name = input("Enter name: ")
+    phone = input("Enter phone: ")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("CALL insert_or_update_user(%s, %s)", (name, phone))
+
+    conn.commit()
+    cur.close()
+    conn.close()
