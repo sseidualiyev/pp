@@ -217,3 +217,15 @@ def pagination():
 
     cur.close()
     conn.close()
+
+def delete_user():
+    value = input("Enter name or phone: ")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("CALL delete_user(%s)", (value,))
+
+    conn.commit()
+    cur.close()
+    conn.close()
