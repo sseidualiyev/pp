@@ -15,9 +15,9 @@ RETURNS TABLE(id INT, name TEXT, phone TEXT) AS
 $$
 BEGIN
     RETURN QUERY
-    SELECT *
-    FROM phonebook
-    ORDER BY id
+    SELECT pb.id, pb.name::TEXT, pb.phone::TEXT
+    FROM phonebook pb
+    ORDER BY pb.id
     LIMIT limit_val OFFSET offset_val;
 END;
 $$ LANGUAGE plpgsql;
