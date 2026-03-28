@@ -3,10 +3,10 @@ RETURNS TABLE(id INT, name TEXT, phone TEXT) AS
 $$
 BEGIN
     RETURN QUERY
-    SELECT *
-    FROM phonebook
-    WHERE name ILIKE '%' || pattern || '%'
-       OR phone ILIKE '%' || pattern || '%';
+    SELECT pb.id, pb.name, pb.phone
+    FROM phonebook pb
+    WHERE pb.name ILIKE '%' || pattern || '%'
+       OR pb.phone ILIKE '%' || pattern || '%';
 END;
 $$ LANGUAGE plpgsql;
 
