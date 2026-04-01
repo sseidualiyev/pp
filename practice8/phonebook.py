@@ -138,6 +138,11 @@ def main():
         print("3 - Update contact")
         print("4 - Query contacts")
         print("5 - Delete contact")
+        print("6 - Search by pattern")
+        print("7 - Insert or update")
+        print("8 - Insert many users")
+        print("9 - Pagination")
+        print("10 - Delete user")
         print("0 - Exit")
 
         choice = input("Choose: ")
