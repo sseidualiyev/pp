@@ -28,7 +28,6 @@ DECLARE
 BEGIN
     FOR i IN 1..array_length(names, 1) LOOP
         
-        -- Simple validation: phone must be digits only
         IF phones[i] ~ '^[0-9]+$' THEN
             IF EXISTS (SELECT 1 FROM phonebook WHERE name = names[i]) THEN
                 UPDATE phonebook SET phone = phones[i] WHERE name = names[i];
