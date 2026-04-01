@@ -152,6 +152,16 @@ def main():
             query_contacts()
         elif choice == "5":
             delete_contact()
+        elif choice == "6":
+            search_pattern()
+        elif choice == "7":
+            insert_or_update()
+        elif choice == "8":
+            insert_many()
+        elif choice == "9":
+            pagination()
+        elif choice == "10":
+            delete_user()
         elif choice == "0":
             break
         else:
