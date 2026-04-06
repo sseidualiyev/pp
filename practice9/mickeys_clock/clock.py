@@ -36,8 +36,8 @@ class MickeyClock:
 
     def draw(self):
 
-    self.screen.blit(self.bg, (0, 0))
+        self.screen.blit(self.bg, (0, 0))
 
-    self.draw_hand(self.right_hand, self.minute_angle)
+        self.draw_hand(self.right_hand, self.minute_angle)
 
-    self.draw_hand(self.left_hand, self.second_angle)
+        self.draw_hand(self.left_hand, self.second_angle)
