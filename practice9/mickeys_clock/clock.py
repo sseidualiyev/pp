@@ -10,8 +10,11 @@ class MickeyClock:
         self.bg = pygame.image.load("images/mickeyclock.png").convert()
         self.bg = pygame.transform.scale(self.bg, (width, height))
 
-        self.hand_image = pygame.image.load("images/mickey_hand.png").convert_alpha()
-        self.hand_image = pygame.transform.scale(self.hand_image, (20, 150))
+        self.left_hand = pygame.image.load("images/mickey_hand2.png").convert_alpha()
+        self.right_hand = pygame.image.load("images/mickey_hand1.png").convert_alpha()
+
+        self.left_hand = pygame.transform.scale(self.left_hand, (20, 150))
+        self.right_hand = pygame.transform.scale(self.right_hand, (20, 150))
 
     def get_angles(self):
         now = datetime.datetime.now()
