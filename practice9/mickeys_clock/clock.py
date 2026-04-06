@@ -26,14 +26,10 @@ class MickeyClock:
 
         return minute_angle, second_angle
 
-    def draw_hand(self, angle, is_left):
-        rotated = pygame.transform.rotate(self.hand_image, angle)
-        rect = rotated.get_rect(center=self.center)
-
-        offset = -10 if is_left else 10
-        rect.centerx += offset
-
-        self.screen.blit(rotated, rect)
+    def draw_hand(self, image, angle):
+    rotated = pygame.transform.rotate(image, angle)
+    rect = rotated.get_rect(center=self.center)
+    self.screen.blit(rotated, rect)
 
     def update(self):
         self.minute_angle, self.second_angle = self.get_angles()
