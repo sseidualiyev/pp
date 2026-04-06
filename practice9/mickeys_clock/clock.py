@@ -7,6 +7,9 @@ class MickeyClock:
         self.screen = screen
         self.center = (width // 2, height // 2)
 
+        self.bg = pygame.image.load("images/mickeyclock.png").convert()
+        self.bg = pygame.transform.scale(self.bg, (width, height))
+
         self.hand_image = pygame.image.load("images/mickey_hand.png").convert_alpha()
         self.hand_image = pygame.transform.scale(self.hand_image, (20, 150))
 
