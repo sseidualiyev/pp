@@ -36,8 +36,8 @@ class MickeyClock:
         self.minute_angle, self.second_angle = self.get_angles()
 
     def draw(self):
-        pygame.draw.circle(self.screen, (0, 0, 0), self.center, 5)
 
-        self.draw_hand(self.minute_angle, is_left=False)
+    self.screen.blit(self.bg, (0, 0))
 
-        self.draw_hand(self.second_angle, is_left=True)
+    self.draw_hand(self.minute_angle, is_left=False)
+    self.draw_hand(self.second_angle, is_left=True)
