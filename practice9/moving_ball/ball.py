@@ -10,19 +10,19 @@ class Ball:
         self.height = height
 
     def move(self, keys):
-        if keys[pygame.K_W]:
+        if keys[pygame.K_w]:
             if self.y - self.step - self.radius >= 0:
                 self.y -= self.step
 
-        if keys[pygame.K_S]:
+        if keys[pygame.K_s]:
             if self.y + self.step + self.radius <= self.height:
                 self.y += self.step
 
-        if keys[pygame.K_A]:
+        if keys[pygame.K_a]:
             if self.x - self.step - self.radius >= 0:
                 self.x -= self.step
 
-        if keys[pygame.K_D]:
+        if keys[pygame.K_d]:
             if self.x + self.step + self.radius <= self.width:
                 self.x += self.step
 
