@@ -62,17 +62,20 @@ class Player(pygame.sprite.Sprite):
         
     def move(self):
         pressed_keys = pygame.key.get_pressed()
-       #if pressed_keys[K_UP]:
-            #self.rect.move_ip(0, -5)
-       #if pressed_keys[K_DOWN]:
-            #self.rect.move_ip(0,5)
-         
-        if self.rect.left > 0:
-              if pressed_keys[K_LEFT]:
-                  self.rect.move_ip(-5, 0)
-        if self.rect.right < SCREEN_WIDTH:        
-              if pressed_keys[K_RIGHT]:
-                  self.rect.move_ip(5, 0)
+
+        # LEFT / RIGHT
+        if pressed_keys[K_LEFT] and self.rect.left > 0:
+            self.rect.move_ip(-5, 0)
+
+        if pressed_keys[K_RIGHT] and self.rect.right < SCREEN_WIDTH:
+            self.rect.move_ip(5, 0)
+
+    # UP / DOWN
+        if pressed_keys[K_UP] and self.rect.top > 0:
+            self.rect.move_ip(0, -5)
+
+        if pressed_keys[K_DOWN] and self.rect.bottom < SCREEN_HEIGHT:
+            self.rect.move_ip(0, 5)
                    
 #Setting up Sprites        
 P1 = Player()
