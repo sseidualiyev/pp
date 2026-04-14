@@ -18,8 +18,8 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
  
 #Other Variables for use in the program
-SCREEN_WIDTH = 1024
-SCREEN_HEIGHT = 1024
+SCREEN_WIDTH = 968
+SCREEN_HEIGHT = 968
 SPEED = 5
 SCORE = 0
 COINS = 0
@@ -32,7 +32,7 @@ game_over = font.render("Game Over", True, BLACK)
 background = pygame.image.load("AnimatedStreet.png")
  
 #Create a white screen 
-DISPLAYSURF = pygame.display.set_mode((1024,1024))
+DISPLAYSURF = pygame.display.set_mode((968,968))
 DISPLAYSURF.fill(WHITE)
 pygame.display.set_caption("Game")
 
