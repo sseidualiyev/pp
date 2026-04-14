@@ -35,9 +35,6 @@ background = pygame.image.load("AnimatedStreet.png")
 DISPLAYSURF = pygame.display.set_mode((768,768))
 DISPLAYSURF.fill(WHITE)
 pygame.display.set_caption("Game")
-
-coin_text = font_small.render("Coins: " + str(COINS), True, BLACK)
-DISPLAYSURF.blit(coin_text, (SCREEN_WIDTH - 150, 10))
  
 class Enemy(pygame.sprite.Sprite):
       def __init__(self):
@@ -92,7 +89,7 @@ class Player(pygame.sprite.Sprite):
         if pressed_keys[K_RIGHT] and self.rect.right < SCREEN_WIDTH:
             self.rect.move_ip(5, 0)
 
-    # UP / DOWN
+        # UP / DOWN
         if pressed_keys[K_UP] and self.rect.top > 0:
             self.rect.move_ip(0, -5)
 
@@ -132,6 +129,8 @@ while True:
     DISPLAYSURF.blit(background, (0,0))
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
+    coin_text = font_small.render("Coins: " + str(COINS), True, BLACK)
+    DISPLAYSURF.blit(coin_text, (SCREEN_WIDTH - 150, 10))
  
     #Moves and Re-draws all Sprites
     for entity in all_sprites:
