@@ -22,6 +22,7 @@ SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 1024
 SPEED = 5
 SCORE = 0
+COINS = 0
  
 #Setting up Fonts
 font = pygame.font.SysFont("Verdana", 60)
@@ -34,6 +35,9 @@ background = pygame.image.load("AnimatedStreet.png")
 DISPLAYSURF = pygame.display.set_mode((1024,1024))
 DISPLAYSURF.fill(WHITE)
 pygame.display.set_caption("Game")
+
+coin_text = font_small.render("Coins: " + str(COINS), True, BLACK)
+DISPLAYSURF.blit(coin_text, (SCREEN_WIDTH - 150, 10))
  
 class Enemy(pygame.sprite.Sprite):
       def __init__(self):
@@ -50,7 +54,25 @@ class Enemy(pygame.sprite.Sprite):
             SCORE += 1
             self.rect.top = 0
             self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
- 
+
+class Coin(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("coin.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.rect = self.image.get_rect()
+        self.reset()
+
+    def reset(self):
+        # Spawn at random position at top
+        self.rect.center = (random.randint(40, SCREEN_WIDTH-40), 0)
+
+    def move(self):
+        self.rect.move_ip(0, SPEED)
+
+        # If coin goes off screen → respawn
+        if self.rect.top > SCREEN_HEIGHT:
+            self.reset()
  
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -80,11 +102,15 @@ class Player(pygame.sprite.Sprite):
 #Setting up Sprites        
 P1 = Player()
 E1 = Enemy()
+C1 = Coin()
  
 #Creating Sprites Groups
 enemies = pygame.sprite.Group()
 enemies.add(E1)
+coins = pygame.sprite.Group()
+coins.add(C1)
 all_sprites = pygame.sprite.Group()
+all_sprites.add(C1)
 all_sprites.add(P1)
 all_sprites.add(E1)
  
@@ -111,7 +137,11 @@ while True:
     for entity in all_sprites:
         DISPLAYSURF.blit(entity.image, entity.rect)
         entity.move()
- 
+        
+    if pygame.sprite.spritecollideany(P1, coins):
+        COINS += 1
+        C1.reset()  # respawn coin
+
     #To be run if collision occurs between Player and Enemy
     if pygame.sprite.spritecollideany(P1, enemies):
           pygame.mixer.Sound('crash.wav').play()
