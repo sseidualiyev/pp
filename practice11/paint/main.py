@@ -11,6 +11,7 @@ def main():
     canvas = pygame.Surface(screen.get_size())
     canvas.fill((0, 0, 0))
 
+    eraser_radius = 15
     radius = 5
     color = (0, 0, 255)
     tool = 'brush'
@@ -128,7 +129,7 @@ def main():
                     if tool == 'brush':
                         pygame.draw.circle(canvas, color, event.pos, radius)
                     elif tool == 'eraser':
-                        pygame.draw.circle(canvas, (0, 0, 0), event.pos, radius)
+                        pygame.draw.circle(canvas, (0, 0, 0), event.pos, eraser_radius)
 
         # Draw canvas
         screen.blit(canvas, (0, 0))
