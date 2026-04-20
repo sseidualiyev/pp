@@ -31,6 +31,7 @@ enemy_img = pygame.transform.scale(enemy_img, (60, 100))
 font = pygame.font.SysFont("Verdana", 25)
 
 # Game variables
+ENEMY_SPEED = 5
 SPEED = 5
 COINS = 0
 PLAYER_SPEED = 6
@@ -99,7 +100,7 @@ while running:
         player.move_ip(0, PLAYER_SPEED)
 
     # Enemy movement
-    enemy.move_ip(0, SPEED)
+    enemy.move_ip(0, ENEMY_SPEED)
 
     # Respawn enemy when off screen
     if enemy.top > SCREEN_HEIGHT:
@@ -116,7 +117,7 @@ while running:
 
         # Increase speed every 10 coins
         if COINS % 10 == 0:
-            SPEED += 1
+            ENEMY_SPEED += 1
 
     # Collision with enemy
     if player.colliderect(enemy):
