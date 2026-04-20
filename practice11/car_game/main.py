@@ -1,99 +1,140 @@
-import pygame, random
+import pygame
+import random
 
+# Initialize pygame
 pygame.init()
 
-# Screen setup
-WIDTH, HEIGHT = 600, 800
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Racer")
+# Screen settings
+SCREEN_WIDTH = 480
+SCREEN_HEIGHT = 800
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Racer Game")
 
+# FPS
 clock = pygame.time.Clock()
+FPS = 60
 
-# Colors
-WHITE = (255,255,255)
-RED = (255,0,0)
-YELLOW = (255,255,0)
+# Load assets (make sure files are in same folder)
+background = pygame.image.load("AnimatedStreet.png").convert()
+player_img = pygame.image.load("Player.png").convert_alpha()
+enemy_img = pygame.image.load("Enemy.png").convert_alpha()
+coin_img = pygame.image.load("coin.png").convert_alpha()
+crash_sound = pygame.mixer.Sound("crash.wav")
+
+# Resize images
+player_img = pygame.transform.scale(player_img, (60, 100))
+enemy_img = pygame.transform.scale(enemy_img, (60, 100))
+
+# Coin sizes depend on weight → scale later
+
+# Font
+font = pygame.font.SysFont("Verdana", 25)
 
 # Game variables
 SPEED = 5
 COINS = 0
+PLAYER_SPEED = 6
 
-# Player
-player = pygame.Rect(250, 700, 50, 80)
+# Player setup
+player = player_img.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT-120))
 
-# Enemy
-enemy = pygame.Rect(random.randint(0, WIDTH-50), 0, 50, 80)
+# Enemy setup
+enemy = enemy_img.get_rect(center=(random.randint(40, SCREEN_WIDTH-40), -100))
 
-# Coin class (with weight)
+# Coin class with weight
 class Coin:
     def __init__(self):
         self.reset()
 
     def reset(self):
-        self.x = random.randint(0, WIDTH-30)
-        self.y = 0
-        self.weight = random.choice([1, 2, 3])  # different weights
-        self.size = 15 + self.weight * 5
+        # Random X position
+        self.x = random.randint(40, SCREEN_WIDTH-40)
+        self.y = -50
+
+        # Weight (affects value and size)
+        self.weight = random.choice([1, 2, 3])
+
+        # Scale coin based on weight
+        size = 20 + self.weight * 10
+        self.image = pygame.transform.scale(coin_img, (size, size))
+        self.rect = self.image.get_rect(center=(self.x, self.y))
 
     def move(self):
-        self.y += SPEED
+        self.rect.move_ip(0, SPEED)
 
-        if self.y > HEIGHT:
+        # Respawn if off screen
+        if self.rect.top > SCREEN_HEIGHT:
             self.reset()
 
     def draw(self):
-        pygame.draw.circle(screen, YELLOW, (self.x, self.y), self.size)
+        screen.blit(self.image, self.rect)
 
 coin = Coin()
 
+# Game loop
 running = True
 while running:
-    screen.fill(WHITE)
 
+    # Draw background
+    screen.blit(background, (0, 0))
+
+    # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # Player movement
+    # Player movement (4 directions)
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and player.x > 0:
-        player.x -= 5
-    if keys[pygame.K_RIGHT] and player.x < WIDTH-50:
-        player.x += 5
+
+    if keys[pygame.K_LEFT] and player.left > 0:
+        player.move_ip(-PLAYER_SPEED, 0)
+
+    if keys[pygame.K_RIGHT] and player.right < SCREEN_WIDTH:
+        player.move_ip(PLAYER_SPEED, 0)
+
+    if keys[pygame.K_UP] and player.top > 0:
+        player.move_ip(0, -PLAYER_SPEED)
+
+    if keys[pygame.K_DOWN] and player.bottom < SCREEN_HEIGHT:
+        player.move_ip(0, PLAYER_SPEED)
 
     # Enemy movement
-    enemy.y += SPEED
-    if enemy.y > HEIGHT:
-        enemy.y = 0
-        enemy.x = random.randint(0, WIDTH-50)
+    enemy.move_ip(0, SPEED)
 
-    # Coin movement
+    # Respawn enemy when off screen
+    if enemy.top > SCREEN_HEIGHT:
+        enemy.top = -100
+        enemy.center = (random.randint(40, SCREEN_WIDTH-40), -100)
+
+    # Move coin
     coin.move()
 
     # Collision with coin
-    if player.collidepoint(coin.x, coin.y):
+    if player.colliderect(coin.rect):
         COINS += coin.weight  # add weighted coins
         coin.reset()
 
-        # Increase enemy speed every 10 coins
+        # Increase speed every 10 coins
         if COINS % 10 == 0:
             SPEED += 1
 
     # Collision with enemy
     if player.colliderect(enemy):
+        crash_sound.play()
+
+        pygame.time.delay(1000)
         running = False
 
-    # Draw objects
-    pygame.draw.rect(screen, RED, player)
-    pygame.draw.rect(screen, (0,0,255), enemy)
+    # Draw sprites
+    screen.blit(player_img, player)
+    screen.blit(enemy_img, enemy)
     coin.draw()
 
-    # Display coins
-    font = pygame.font.SysFont(None, 36)
-    text = font.render(f"Coins: {COINS}", True, (0,0,0))
-    screen.blit(text, (10,10))
+    # Display coin count
+    coin_text = font.render(f"Coins: {COINS}", True, (0,0,0))
+    screen.blit(coin_text, (SCREEN_WIDTH - 150, 10))
 
-    pygame.display.flip()
-    clock.tick(60)
+    pygame.display.update()
+    clock.tick(FPS)
 
 pygame.quit()
