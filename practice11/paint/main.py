@@ -74,7 +74,6 @@ def main():
                 if event.button == 1 and drawing:
                     end_pos = event.pos
 
-                    # OLD shapes
                     if tool == 'rectangle':
                         rect = pygame.Rect(
                             start_pos[0],
@@ -90,7 +89,7 @@ def main():
                         radius_circle = int((dx**2 + dy**2) ** 0.5)
                         pygame.draw.circle(canvas, color, start_pos, radius_circle, 2)
 
-                    # 🆕 NEW SHAPES
+                    # NEW SHAPES
 
                     elif tool == 'square':
                         size = min(abs(end_pos[0]-start_pos[0]), abs(end_pos[1]-start_pos[1]))
@@ -134,7 +133,7 @@ def main():
         # Draw canvas
         screen.blit(canvas, (0, 0))
 
-        # Preview shapes (OLD + NEW)
+        # Preview shapes 
         if drawing and tool in ['rectangle', 'circle', 'square', 'rtriangle', 'etriangle', 'rhombus']:
             current_pos = pygame.mouse.get_pos()
 
@@ -150,7 +149,6 @@ def main():
                 radius_circle = int((dx**2 + dy**2) ** 0.5)
                 pygame.draw.circle(screen, color, start_pos, radius_circle, 1)
 
-            # 🆕 Preview new shapes
 
             elif tool == 'square':
                 size = min(abs(current_pos[0]-start_pos[0]), abs(current_pos[1]-start_pos[1]))
