@@ -41,7 +41,7 @@ def main():
                 elif event.key == pygame.K_4:
                     tool = 'eraser'
 
-                # 🆕 NEW SHAPES
+                # NEW SHAPES
                 elif event.key == pygame.K_5:
                     tool = 'square'
                 elif event.key == pygame.K_6:
