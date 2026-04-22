@@ -14,7 +14,7 @@ pygame.display.set_caption("Racer Game")
 clock = pygame.time.Clock()
 FPS = 60
 
-# Load assets (make sure files are in same folder)
+# Load assets 
 background = pygame.image.load("AnimatedStreet.png").convert()
 player_img = pygame.image.load("Player.png").convert_alpha()
 enemy_img = pygame.image.load("Enemy.png").convert_alpha()
@@ -25,7 +25,7 @@ crash_sound = pygame.mixer.Sound("crash.wav")
 player_img = pygame.transform.scale(player_img, (60, 100))
 enemy_img = pygame.transform.scale(enemy_img, (60, 100))
 
-# Coin sizes depend on weight → scale later
+# Coin sizes depend on weight 
 
 # Font
 font = pygame.font.SysFont("Verdana", 25)
@@ -84,7 +84,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Player movement (4 directions)
+    # Player movement 
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_LEFT] and player.left > 0:
