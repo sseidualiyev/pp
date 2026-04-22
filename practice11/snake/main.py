@@ -1,16 +1,28 @@
-import pygame, random, time
+import pygame
+import random
+import time
 
 pygame.init()
 
+# Screen setup
 WIDTH, HEIGHT = 600, 600
 CELL = 20
+ROWS = WIDTH // CELL
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Snake Game")
+
 clock = pygame.time.Clock()
 
-# Snake
-snake = [(5,5)]
-direction = (1,0)
+# Colors
+BLACK = (0,0,0)
+GREEN = (0,255,0)
+RED = (255,0,0)
+WHITE = (255,255,255)
+
+# Snake setup
+snake = [(5,5), (4,5), (3,5)]  # initial body
+direction = (1,0)  # moving right
 
 # Food with weight + timer
 class Food:
@@ -18,7 +30,7 @@ class Food:
         self.spawn()
 
     def spawn(self):
-        self.pos = (random.randint(0,29), random.randint(0,29))
+        self.pos = (random.randint(0, ROWS-1), random.randint(0, ROWS-1))
         self.weight = random.choice([1,2,3])
         self.spawn_time = time.time()
 
@@ -30,48 +42,53 @@ score = 0
 
 running = True
 while running:
-    screen.fill((0,0,0))
+    screen.fill(BLACK)
 
+    # --- EVENTS ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP: direction=(0,-1)
-            if event.key == pygame.K_DOWN: direction=(0,1)
-            if event.key == pygame.K_LEFT: direction=(-1,0)
-            if event.key == pygame.K_RIGHT: direction=(1,0)
 
-    # Move snake
-    head = (snake[0][0]+direction[0], snake[0][1]+direction[1])
-    snake.insert(0, head)
+            if event.key == pygame.K_UP and direction != (0,1):
+                direction = (0,-1)
+            elif event.key == pygame.K_DOWN and direction != (0,-1):
+                direction = (0,1)
+            elif event.key == pygame.K_LEFT and direction != (1,0):
+                direction = (-1,0)
+            elif event.key == pygame.K_RIGHT and direction != (-1,0):
+                direction = (1,0)
 
-    # Food eaten
+    head = (snake[0][0] + direction[0], snake[0][1] + direction[1])
+    snake.insert(0, head)  # add new head
+
     if head == food.pos:
-        score += food.weight
+        score += food.weight  
         food.spawn()
     else:
-        snake.pop()
+        snake.pop()  
 
-    # Food disappears
     if food.expired():
         food.spawn()
 
-    # Collision with wall
-    if head[0] < 0 or head[0] >= 30 or head[1] < 0 or head[1] >= 30:
+
+    if head[0] < 0 or head[0] >= ROWS or head[1] < 0 or head[1] >= ROWS:
         running = False
 
-    # Draw snake
-    for s in snake:
-        pygame.draw.rect(screen, (0,255,0), (s[0]*CELL, s[1]*CELL, CELL, CELL))
+    if head in snake[1:]:
+        running = False
 
-    # Draw food (size depends on weight)
-    pygame.draw.rect(screen, (255,0,0),
-        (food.pos[0]*CELL, food.pos[1]*CELL, CELL + food.weight*5, CELL + food.weight*5))
+    for segment in snake:
+        pygame.draw.rect(screen, GREEN,
+                         (segment[0]*CELL, segment[1]*CELL, CELL, CELL))
 
-    # Score
+    size = CELL + food.weight * 5
+    pygame.draw.rect(screen, RED,
+                     (food.pos[0]*CELL, food.pos[1]*CELL, size, size))
+
     font = pygame.font.SysFont(None, 30)
-    text = font.render(f"Score: {score}", True, (255,255,255))
+    text = font.render(f"Score: {score}", True, WHITE)
     screen.blit(text, (10,10))
 
     pygame.display.flip()
