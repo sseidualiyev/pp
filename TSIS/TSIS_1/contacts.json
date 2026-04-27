@@ -1,0 +1,66 @@
+[
+    {
+        "name": "Bob Johnson",
+        "email": "bob@mail.com",
+        "birthday": "1995-09-30",
+        "group": "Family",
+        "phones": [
+            {
+                "number": "777333333",
+                "type": "home"
+            }
+        ]
+    },
+    {
+        "name": "Diana Prince",
+        "email": "diana@amazon.com",
+        "birthday": "1992-03-15",
+        "group": "Work",
+        "phones": [
+            {
+                "number": "777555555",
+                "type": "work"
+            }
+        ]
+    },
+    {
+        "name": "Alice Smith",
+        "email": "alice@yahoo.com",
+        "birthday": "1998-05-12",
+        "group": "Work",
+        "phones": [
+            {
+                "number": "777222222",
+                "type": "mobile"
+            }
+        ]
+    },
+    {
+        "name": "John Doe",
+        "email": "john@gmail.com",
+        "birthday": "2000-01-01",
+        "group": "Friend",
+        "phones": [
+            {
+                "number": "777111111",
+                "type": "mobile"
+            },
+            {
+                "number": "770000000",
+                "type": "work"
+            }
+        ]
+    },
+    {
+        "name": "Charlie Brown",
+        "email": "charlie@gmail.com",
+        "birthday": "2001-07-20",
+        "group": "Other",
+        "phones": [
+            {
+                "number": "777444444",
+                "type": "mobile"
+            }
+        ]
+    }
+]
