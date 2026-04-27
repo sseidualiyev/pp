@@ -297,3 +297,50 @@ def move_group_proc(conn):
     print("✅ Moved to group.")
 
 
+# =========================
+# MAIN MENU
+# =========================
+
+def main():
+    conn = get_connection()
+
+    while True:
+        print("""
+1. Add contact
+2. View contacts (filter/sort)
+3. Search
+4. Pagination
+5. Export JSON
+6. Import JSON
+7. Import CSV
+8. Add phone (procedure)
+9. Move to group (procedure)
+0. Exit
+""")
+
+        choice = input("Choose: ")
+
+        if choice == "1":
+            add_contact(conn)
+        elif choice == "2":
+            view_contacts(conn)
+        elif choice == "3":
+            search(conn)
+        elif choice == "4":
+            paginate(conn)
+        elif choice == "5":
+            export_json(conn)
+        elif choice == "6":
+            import_json(conn)
+        elif choice == "7":
+            import_csv(conn)
+        elif choice == "8":
+            add_phone_proc(conn)
+        elif choice == "9":
+            move_group_proc(conn)
+        elif choice == "0":
+            break
+
+
+if __name__ == "__main__":
+    main()
