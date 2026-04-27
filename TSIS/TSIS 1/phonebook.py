@@ -180,3 +180,49 @@ def export_json(conn):
     print("✅ Exported to contacts.json")
 
 
+# =========================
+# IMPORT JSON
+# =========================
+
+def import_json(conn):
+    cur = conn.cursor()
+
+    with open("contacts.json") as f:
+        data = json.load(f)
+
+    for contact in data:
+        name = contact["name"]
+
+        cur.execute("SELECT id FROM contacts WHERE name=%s", (name,))
+        exists = cur.fetchone()
+
+        if exists:
+            choice = input(f"{name} exists (skip/overwrite): ")
+
+            if choice == "skip":
+                continue
+            elif choice == "overwrite":
+                cur.execute("DELETE FROM contacts WHERE name=%s", (name,))
+
+        cur.execute("""
+            INSERT INTO contacts(name, email, birthday)
+            VALUES (%s, %s, %s)
+            RETURNING id
+        """, (name, contact["email"], contact["birthday"]))
+
+        cid = cur.fetchone()[0]
+
+        gid = get_group_id(cur, contact["group"])
+
+        cur.execute("UPDATE contacts SET group_id=%s WHERE id=%s", (gid, cid))
+
+        for p in contact["phones"]:
+            cur.execute("""
+                INSERT INTO phones(contact_id, phone, type)
+                VALUES (%s, %s, %s)
+            """, (cid, p["number"], p["type"]))
+
+    conn.commit()
+    print("✅ JSON imported.")
+
+
