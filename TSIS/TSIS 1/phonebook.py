@@ -95,3 +95,53 @@ def view_contacts(conn):
     for row in cur.fetchall():
         print(row)
 
+
+
+# =========================
+# SEARCH
+# =========================
+
+def search(conn):
+    cur = conn.cursor()
+    q = input("Search query: ")
+
+    cur.execute("SELECT * FROM search_contacts(%s)", (q,))
+    for row in cur.fetchall():
+        print(row)
+
+
+# =========================
+# PAGINATION
+# =========================
+
+def paginate(conn):
+    cur = conn.cursor()
+    limit = 5
+    offset = 0
+
+    while True:
+        cur.execute("""
+            SELECT c.name, c.email
+            FROM contacts c
+            LIMIT %s OFFSET %s
+        """, (limit, offset))
+
+        rows = cur.fetchall()
+
+        if not rows:
+            print("No more data.")
+            break
+
+        for r in rows:
+            print(r)
+
+        cmd = input("next / prev / quit: ").lower()
+
+        if cmd == "next":
+            offset += limit
+        elif cmd == "prev" and offset >= limit:
+            offset -= limit
+        elif cmd == "quit":
+            break
+
+
