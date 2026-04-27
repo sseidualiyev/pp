@@ -1,0 +1,7 @@
+name,email,birthday,group,phone,type
+John Doe,john@gmail.com,2000-01-01,Friend,777111111,mobile
+John Doe,john@gmail.com,2000-01-01,Friend,770000000,work
+Alice Smith,alice@yahoo.com,1998-05-12,Work,777222222,mobile
+Bob Johnson,bob@mail.com,1995-09-30,Family,777333333,home
+Charlie Brown,charlie@gmail.com,2001-07-20,Other,777444444,mobile
+Diana Prince,diana@amazon.com,1992-03-15,Work,777555555,work
