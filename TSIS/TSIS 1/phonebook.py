@@ -226,3 +226,45 @@ def import_json(conn):
     print("✅ JSON imported.")
 
 
+# =========================
+# IMPORT CSV
+# =========================
+
+def import_csv(conn):
+    cur = conn.cursor()
+
+    filename = input("CSV filename: ")
+
+    with open(filename) as f:
+        reader = csv.DictReader(f)
+
+        for row in reader:
+            name = row["name"]
+
+            cur.execute("""
+                INSERT INTO contacts(name, email, birthday)
+                VALUES (%s, %s, %s)
+                ON CONFLICT DO NOTHING
+                RETURNING id
+            """, (name, row["email"], row["birthday"]))
+
+            res = cur.fetchone()
+
+            if res:
+                cid = res[0]
+            else:
+                cid = get_contact_id(cur, name)
+
+            gid = get_group_id(cur, row["group"])
+
+            cur.execute("UPDATE contacts SET group_id=%s WHERE id=%s", (gid, cid))
+
+            cur.execute("""
+                INSERT INTO phones(contact_id, phone, type)
+                VALUES (%s, %s, %s)
+            """, (cid, row["phone"], row["type"]))
+
+    conn.commit()
+    print("✅ CSV imported.")
+
+
