@@ -21,6 +21,7 @@ BEGIN
 END;
 $$;
 
+
 CREATE OR REPLACE PROCEDURE move_to_group(
     p_contact_name VARCHAR,
     p_group_name VARCHAR
@@ -41,5 +42,27 @@ BEGIN
     UPDATE contacts
     SET group_id = gid
     WHERE name = p_contact_name;
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION search_contacts(p_query TEXT)
+RETURNS TABLE(
+    id INTEGER,
+    name VARCHAR,
+    email VARCHAR,
+    phone VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT DISTINCT c.id, c.name, c.email, p.phone
+    FROM contacts c
+    LEFT JOIN phones p ON c.id = p.contact_id
+    WHERE
+        c.name ILIKE '%' || p_query || '%'
+        OR c.email ILIKE '%' || p_query || '%'
+        OR p.phone ILIKE '%' || p_query || '%';
 END;
 $$;
