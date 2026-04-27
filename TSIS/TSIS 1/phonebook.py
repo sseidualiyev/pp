@@ -268,3 +268,32 @@ def import_csv(conn):
     print("✅ CSV imported.")
 
 
+# =========================
+# PROCEDURES CALL
+# =========================
+
+def add_phone_proc(conn):
+    cur = conn.cursor()
+
+    name = input("Contact name: ")
+    phone = input("Phone: ")
+    ptype = input("Type: ")
+
+    cur.execute("CALL add_phone(%s, %s, %s)", (name, phone, ptype))
+    conn.commit()
+
+    print("✅ Phone added via procedure.")
+
+
+def move_group_proc(conn):
+    cur = conn.cursor()
+
+    name = input("Contact name: ")
+    group = input("New group: ")
+
+    cur.execute("CALL move_to_group(%s, %s)", (name, group))
+    conn.commit()
+
+    print("✅ Moved to group.")
+
+
