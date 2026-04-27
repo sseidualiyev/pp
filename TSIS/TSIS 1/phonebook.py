@@ -145,3 +145,38 @@ def paginate(conn):
             break
 
 
+# =========================
+# EXPORT JSON
+# =========================
+
+def export_json(conn):
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT c.id, c.name, c.email, c.birthday, g.name
+        FROM contacts c
+        LEFT JOIN groups g ON c.group_id = g.id
+    """)
+
+    data = []
+
+    for row in cur.fetchall():
+        cid = row[0]
+
+        cur.execute("SELECT phone, type FROM phones WHERE contact_id=%s", (cid,))
+        phones = cur.fetchall()
+
+        data.append({
+            "name": row[1],
+            "email": row[2],
+            "birthday": str(row[3]),
+            "group": row[4],
+            "phones": [{"number": p[0], "type": p[1]} for p in phones]
+        })
+
+    with open("contacts.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+    print("✅ Exported to contacts.json")
+
+
