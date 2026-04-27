@@ -61,3 +61,37 @@ def add_contact(conn):
     print("✅ Contact added.")
 
 
+# =========================
+# FILTER + SORT
+# =========================
+
+def view_contacts(conn):
+    cur = conn.cursor()
+
+    group = input("Filter by group (or Enter): ")
+    sort = input("Sort by (name/birthday/date): ")
+
+    query = """
+        SELECT c.id, c.name, c.email, c.birthday, g.name
+        FROM contacts c
+        LEFT JOIN groups g ON c.group_id = g.id
+    """
+
+    params = []
+
+    if group:
+        query += " WHERE g.name = %s"
+        params.append(group)
+
+    if sort == "birthday":
+        query += " ORDER BY c.birthday"
+    elif sort == "date":
+        query += " ORDER BY c.id"
+    else:
+        query += " ORDER BY c.name"
+
+    cur.execute(query, params)
+
+    for row in cur.fetchall():
+        print(row)
+
