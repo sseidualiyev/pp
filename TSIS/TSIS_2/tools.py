@@ -81,3 +81,53 @@ def draw_circle(surface, color, start, end, size):
     pygame.draw.circle(surface, color, start, radius, size)
 
 
+# =========================
+# SQUARE
+# =========================
+def draw_square(surface, color, start, end, size):
+    side = min(abs(end[0]-start[0]), abs(end[1]-start[1]))
+    rect = pygame.Rect(start[0], start[1], side, side)
+    pygame.draw.rect(surface, color, rect, size)
+
+
+# =========================
+# RIGHT TRIANGLE
+# =========================
+def draw_rtriangle(surface, color, start, end, size):
+    points = [start, (end[0], start[1]), end]
+    pygame.draw.polygon(surface, color, points, size)
+
+
+# =========================
+# EQUILATERAL TRIANGLE
+# =========================
+def draw_etriangle(surface, color, start, end, size):
+    x1, y1 = start
+    x2, y2 = end
+
+    base_mid = ((x1 + x2)//2, y1)
+    height = abs(x2 - x1) * (3 ** 0.5) / 2
+    top = (base_mid[0], int(y1 - height))
+
+    pygame.draw.polygon(surface, color, [start, end, top], size)
+
+
+# =========================
+# RHOMBUS
+# =========================
+def draw_rhombus(surface, color, start, end, size):
+    x1, y1 = start
+    x2, y2 = end
+
+    cx = (x1 + x2)//2
+    cy = (y1 + y2)//2
+
+    points = [
+        (cx, y1),
+        (x2, cy),
+        (cx, y2),
+        (x1, cy)
+    ]
+
+    pygame.draw.polygon(surface, color, points, size)
+
