@@ -1,14 +1,14 @@
 import pygame
 import sys
 
-from racer import Game
 from persistence import load_settings, save_settings, load_leaderboard, add_score
-from ui import W, H, BLACK, WHITE
+from racer import Game
+from ui import W, H, BLACK
 
 
-def draw_text(screen, text, y, size=40):
-    font = pygame.font.SysFont("consolas", size, bold=True)
-    surf = font.render(text, True, WHITE)
+def draw_text(screen, text, y):
+    font = pygame.font.SysFont(None, 40)
+    surf = font.render(text, True, (255, 255, 255))
     screen.blit(surf, surf.get_rect(center=(W // 2, y)))
 
 
@@ -20,20 +20,20 @@ def main():
     clock = pygame.time.Clock()
 
     settings = load_settings()
+    game = Game(settings)
     leaderboard = load_leaderboard()
 
-    game = Game(settings)
     state = "menu"
 
-    running = True
-
-    while running:
+    while True:
         dt = clock.tick(60) / 1000
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                pygame.quit()
+                sys.exit()
 
+            # ── MENU ──
             if state == "menu":
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game = Game(settings)
@@ -47,15 +47,14 @@ def main():
                     if event.key == pygame.K_s:
                         state = "settings"
 
+            # ── GAME ──
             elif state == "game":
                 game.handle_event(event)
 
-            elif state == "gameover":
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    state = "menu"
-
+            # ── SETTINGS ──
             elif state == "settings":
                 if event.type == pygame.KEYDOWN:
+
                     if event.key == pygame.K_ESCAPE:
                         save_settings(settings)
                         state = "menu"
@@ -67,8 +66,15 @@ def main():
 
                     if event.key == pygame.K_m:
                         settings["sound"] = not settings["sound"]
+                        game.settings = settings
+                        game.update_sound()
 
-        # ───── UPDATE ─────
+            # ── GAMEOVER ──
+            elif state == "gameover":
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    state = "menu"
+
+        # ── UPDATE ──
         if state == "game":
             game.update(dt)
 
@@ -77,13 +83,13 @@ def main():
                 pygame.mixer.music.stop()
                 state = "gameover"
 
-        # ───── DRAW ─────
+        # ── DRAW ──
         screen.fill(BLACK)
 
         if state == "menu":
             draw_text(screen, "CLICK TO PLAY", 300)
-            draw_text(screen, "L - LEADERBOARD", 360, 30)
-            draw_text(screen, "S - SETTINGS", 420, 30)
+            draw_text(screen, "L - LEADERBOARD", 360)
+            draw_text(screen, "S - SETTINGS", 420)
 
         elif state == "game":
             game.draw(screen)
@@ -93,23 +99,19 @@ def main():
 
         elif state == "leaderboard":
             draw_text(screen, "TOP 10", 100)
-
             y = 160
             for i, e in enumerate(leaderboard):
-                draw_text(screen, f"{i+1}. {e['name']} {e['score']} {e['coins']}", y, 30)
+                draw_text(screen, f"{i+1}. {e['name']} {e['score']}", y)
                 y += 40
 
         elif state == "settings":
             draw_text(screen, "SETTINGS", 200)
-            draw_text(screen, f"Difficulty: {settings['difficulty']}", 260, 30)
-            draw_text(screen, f"Sound: {'ON' if settings['sound'] else 'OFF'}", 320, 30)
-            draw_text(screen, "D - difficulty", 400, 25)
-            draw_text(screen, "M - sound", 440, 25)
+            draw_text(screen, f"Difficulty: {settings['difficulty']}", 260)
+            draw_text(screen, f"Sound: {'ON' if settings['sound'] else 'OFF'}", 320)
+            draw_text(screen, "D - difficulty", 400)
+            draw_text(screen, "M - sound toggle", 440)
 
         pygame.display.flip()
-
-    pygame.quit()
-    sys.exit()
 
 
 if __name__ == "__main__":
