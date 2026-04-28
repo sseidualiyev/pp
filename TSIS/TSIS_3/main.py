@@ -64,7 +64,21 @@ while running:
         status = game.update()
 
         screen.fill((255, 255, 255))
+
+        # player
         screen.blit(assets["player"], game.player)
+
+        # enemies (traffic)
+        for t in game.traffic:
+            screen.blit(assets["enemy"], t.rect)
+
+        # obstacles (simple rectangles for now)
+        for o in game.obstacles:
+            pygame.draw.rect(screen, (0, 0, 0), o.rect)
+
+        # powerups
+        for p in game.powerups:
+            screen.blit(assets["coin"], p.rect)
 
         if status == "game_over":
             add_score("PLAYER", game.coins, game.distance)
