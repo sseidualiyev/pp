@@ -110,9 +110,8 @@ class RacerGame:
 
     # ---------------- UPDATE ----------------
     def update(self):
-        self.distance += 1
-
-        global_speed = 1.2 + min(self.distance * 0.0002, 1.0)
+        self.distance += 0.02 
+        global_speed = 1.5 + min(self.distance, 3.0)
 
         # traffic
         for t in self.traffic:
