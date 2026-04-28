@@ -20,6 +20,8 @@ def main():
     clock = pygame.time.Clock()
 
     settings = load_settings()
+    player_name = ""
+    typing_name = True
     game = Game(settings)
     leaderboard = load_leaderboard()
 
@@ -35,9 +37,28 @@ def main():
 
             # ── MENU ──
             if state == "menu":
-                if event.type == pygame.MOUSEBUTTONDOWN:
+
+                draw_text(screen, "ENTER NAME:", 220)
+                draw_text(screen, player_name + "_", 260)
+                draw_text(screen, "PRESS ENTER TO CONFIRM", 320)
+                draw_text(screen, "CLICK TO START", 380)
+                draw_text(screen, "L - LEADERBOARD", 440)
+                draw_text(screen, "S - SETTINGS", 480)
+
+                if event.type == pygame.MOUSEBUTTONDOWN and not typing_name:
                     game = Game(settings)
+                    game.player_name = player_name
                     state = "game"
+                
+                if typing_name:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN:
+                            typing_name = False
+                        elif event.key == pygame.K_BACKSPACE:
+                            player_name = player_name[:-1]
+                        else:
+                            if len(player_name) < 12:
+                                player_name += event.unicode
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_l:
@@ -79,7 +100,7 @@ def main():
             game.update(dt)
 
             if not game.alive:
-                add_score("Player", game.score, game.distance, game.coins)
+                add_score(game.player_name, game.score, game.distance, game.coins)
                 pygame.mixer.music.stop()
                 state = "gameover"
 
@@ -103,6 +124,8 @@ def main():
             for i, e in enumerate(leaderboard):
                 draw_text(screen, f"{i+1}. {e['name']} {e['score']}", y)
                 y += 40
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                state = "menu"
 
         elif state == "settings":
             draw_text(screen, "SETTINGS", 200)

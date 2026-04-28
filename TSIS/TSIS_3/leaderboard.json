@@ -1,5 +1,11 @@
 [
     {
+        "name": "Player",
+        "score": 3217,
+        "distance": 32172,
+        "coins": 68
+    },
+    {
         "name": "s",
         "score": 1326,
         "distance": 332,
@@ -16,6 +22,12 @@
         "score": 736,
         "distance": 7360,
         "coins": 9
+    },
+    {
+        "name": "Player",
+        "score": 532,
+        "distance": 5328,
+        "coins": 23
     },
     {
         "name": "Player",
@@ -46,17 +58,5 @@
         "score": 95,
         "distance": 955,
         "coins": 2
-    },
-    {
-        "name": "Player",
-        "score": 89,
-        "distance": 899,
-        "coins": 0
-    },
-    {
-        "name": "Player",
-        "score": 83,
-        "distance": 831,
-        "coins": 0
     }
 ]

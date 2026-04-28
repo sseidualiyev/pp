@@ -13,6 +13,7 @@ def load_img(name, size):
 class Game:
     def __init__(self, settings):
         self.settings = settings
+        self.player_name = "Player"
         self.music_path = f"{ASSETS}/bg_music.mp3"
 
         # assets
