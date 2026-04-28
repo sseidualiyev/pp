@@ -68,7 +68,7 @@ def main():
                     tool = "eraser"
 
                 # BRUSH SIZE
-                elif event.key == pygame.K_1 and pygame.key.get_mods() == 0:
+                elif event.key == pygame.K_1:
                     brush_size = 2
                 elif event.key == pygame.K_2:
                     brush_size = 5
