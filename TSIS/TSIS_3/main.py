@@ -38,6 +38,7 @@ def main():
             # ── MENU ──
             if state == "menu":
 
+                # ── DRAW ─────────────────────────
                 draw_text(screen, "ENTER NAME:", 220)
                 draw_text(screen, player_name + "_", 260)
                 draw_text(screen, "PRESS ENTER TO CONFIRM", 320)
@@ -45,13 +46,11 @@ def main():
                 draw_text(screen, "L - LEADERBOARD", 440)
                 draw_text(screen, "S - SETTINGS", 480)
 
-                if event.type == pygame.MOUSEBUTTONDOWN and not typing_name:
-                    game = Game(settings)
-                    game.player_name = player_name
-                    state = "game"
-                
-                if typing_name:
-                    if event.type == pygame.KEYDOWN:
+                # ── INPUT HANDLING ───────────────
+                if event.type == pygame.KEYDOWN:
+
+                    # name typing
+                    if typing_name:
                         if event.key == pygame.K_RETURN:
                             typing_name = False
                         elif event.key == pygame.K_BACKSPACE:
@@ -60,13 +59,21 @@ def main():
                             if len(player_name) < 12:
                                 player_name += event.unicode
 
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_l:
-                        leaderboard = load_leaderboard()
-                        state = "leaderboard"
+                    # menu navigation only AFTER name confirmed
+                    else:
+                        if event.key == pygame.K_l:
+                            leaderboard = load_leaderboard()
+                            state = "leaderboard"
 
-                    if event.key == pygame.K_s:
-                        state = "settings"
+                        if event.key == pygame.K_s:
+                            state = "settings"
+
+                # ── START GAME ───────────────────
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if not typing_name and player_name.strip() != "":
+                        game = Game(settings)
+                        game.player_name = player_name
+                        state = "game"
 
             # ── GAME ──
             elif state == "game":
