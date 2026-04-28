@@ -16,3 +16,8 @@ def load_settings():
         return json.load(f)
 
 
+def save_settings(settings):
+    with open(SETTINGS_FILE, "w") as f:
+        json.dump(settings, f, indent=4)
+
+
