@@ -25,3 +25,43 @@ settings = load_settings()
 state = "menu"
 running = True
 
+while running:
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    keys = pygame.key.get_pressed()
+
+    # MENU
+    if state == "menu":
+        ui.main_menu()
+        if keys[pygame.K_1]:
+            state = "game"
+
+    # GAME
+    elif state == "game":
+
+        if keys[pygame.K_LEFT]:
+            game.move_player("left")
+        if keys[pygame.K_RIGHT]:
+            game.move_player("right")
+
+        status = game.update()
+
+        screen.fill((255, 255, 255))
+        screen.blit(assets["player"], game.player)
+
+        if status == "game_over":
+            add_score("PLAYER", game.coins, game.distance)
+            state = "game_over"
+
+    # GAME OVER
+    elif state == "game_over":
+        ui.game_over(game.coins, game.distance)
+
+        if keys[pygame.K_r]:
+            game = RacerGame(assets)
+            state = "game"
+
+    pygame.display.update()
