@@ -20,8 +20,8 @@ class PowerUp:
         self.rect = self.image.get_rect(center=(self.lane, -100))
         self.speed = 5
 
-    def update(self):
-        self.rect.y += self.speed
+    def update(self, speed_factor):
+        self.rect.y += self.speed * speed_factor
         if self.rect.top > SCREEN_HEIGHT:
             self.spawn()
 
@@ -36,8 +36,8 @@ class Obstacle:
         self.rect = pygame.Rect(self.lane, -100, 50, 80)
         self.speed = random.randint(6, 10)
 
-    def update(self):
-        self.rect.y += self.speed
+    def update(self, speed_factor):
+        self.rect.y += self.speed * speed_factor
         if self.rect.top > SCREEN_HEIGHT:
             self.spawn()
 
@@ -53,8 +53,8 @@ class TrafficCar:
         self.rect = self.image.get_rect(center=(self.lane, -200))
         self.speed = random.uniform(1.0, 1.8)
 
-    def update(self):
-        self.rect.y += self.speed
+    def update(self, speed_factor):
+        self.rect.y += self.speed * speed_factor
         if self.rect.top > SCREEN_HEIGHT:
             self.spawn()
 
@@ -110,12 +110,12 @@ class RacerGame:
     def update(self):
         self.distance += 1
 
-        speed_factor = self.ENEMY_SPEED
+        speed_factor = 1 + (self.distance / 5000)  # smooth scaling
 
         # traffic
         for t in self.traffic:
-            t.update()
-            t.rect.y += t.speed * speed_factor
+            t.update(speed_factor)
+
             if self.player.colliderect(t.rect):
                 if self.shield:
                     self.shield = False
@@ -124,8 +124,8 @@ class RacerGame:
 
         # obstacles
         for o in self.obstacles:
-            o.update()
-            o.rect.y += o.speed * speed_factor
+            o.update(speed_factor)
+
             if self.player.colliderect(o.rect):
                 if self.shield:
                     self.shield = False
@@ -134,18 +134,13 @@ class RacerGame:
 
         # powerups
         for p in self.powerups:
-            p.update()
+            p.update(speed_factor)
+
             if self.player.colliderect(p.rect):
                 self.apply_powerup(p.type)
                 p.spawn()
 
-        # powerup timer
-        if self.active_powerup == "NITRO":
-            if time.time() > self.powerup_end_time:
-                self.ENEMY_SPEED = max(6, self.ENEMY_SPEED - 4)
-                self.active_powerup = None
-
-        # difficulty scaling
-        self.ENEMY_SPEED = 4 + self.coins // 15
+        # difficulty (FIXED — no instant jumps)
+        self.ENEMY_SPEED = 4 + (self.distance // 1500)
 
         return "running"
