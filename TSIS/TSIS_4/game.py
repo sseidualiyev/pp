@@ -11,6 +11,7 @@ DARK_RED = (120,0,0)
 ORANGE = (255,165,0)
 CYAN = (0,255,255)
 GREEN = (0,255,0)
+GRAY = (130,130,130)
 
 class SnakeGame:
     def __init__(self):
@@ -22,25 +23,29 @@ class SnakeGame:
 
         self.score = 0
         self.level = 1
-        self.food_eaten = 0
 
         self.food = self.spawn_food()
         self.poison = self.spawn_poison()
 
+        # ---------------- POWERUPS ----------------
         self.power = None
         self.power_type = None
         self.power_spawn_time = 0
-        self.power_active_until = 0
+        self.power_end_time = 0
 
         self.shield = False
 
         self.obstacles = []
-        self.last_move = pygame.time.get_ticks()
-        self.move_delay = 150
 
-    # ---------------- SPAWN ----------------
+        self.move_delay = 150
+        self.last_move = pygame.time.get_ticks()
+
+    # ---------------- SPAWN FOOD ----------------
     def spawn_food(self):
-        return (random.randint(0,ROWS-1), random.randint(0,ROWS-1))
+        return {
+            "pos": (random.randint(0,ROWS-1), random.randint(0,ROWS-1)),
+            "size": random.randint(1,3)   # NEW FEATURE
+        }
 
     def spawn_poison(self):
         return (random.randint(0,ROWS-1), random.randint(0,ROWS-1))
@@ -55,28 +60,39 @@ class SnakeGame:
         obs = []
         snake_set = set(self.snake)
 
-        for _ in range(self.level * 4):
+        for _ in range(self.level * 5):
             while True:
-                pos = (random.randint(0,ROWS-1), random.randint(0,ROWS-1))
-                if pos not in snake_set:
-                    obs.append(pos)
+                p = (random.randint(0,ROWS-1), random.randint(0,ROWS-1))
+                if p not in snake_set:
+                    obs.append(p)
                     break
         return obs
 
-    # ---------------- MOVEMENT ----------------
+    # ---------------- SPEED CONTROL ----------------
     def can_move(self):
         now = pygame.time.get_ticks()
-        if now - self.last_move >= self.move_delay:
+        if now - self.last_move > self.move_delay:
             self.last_move = now
             return True
         return False
 
+    # ---------------- LEVEL SYSTEM ----------------
+    def update_level(self):
+        if self.score >= 20:
+            self.level = 2
+        if self.score >= 50:
+            self.level = 3
+            self.obstacles = self.spawn_obstacles()
+
     # ---------------- UPDATE ----------------
     def update(self):
+
+        self.update_level()
+
         head = (self.snake[0][0]+self.direction[0],
                 self.snake[0][1]+self.direction[1])
 
-        # obstacle / self / wall
+        # COLLISION
         if head in self.snake[1:] or head in self.obstacles:
             if self.shield:
                 self.shield = False
@@ -91,71 +107,64 @@ class SnakeGame:
 
         self.snake.insert(0, head)
 
-        # FOOD
-        if head == self.food:
-            self.score += 1
+        # ---------------- FOOD ----------------
+        if head == self.food["pos"]:
+            self.score += self.food["size"]   # BIGGER FOOD = MORE SCORE
             self.food = self.spawn_food()
-            self.food_eaten += 1
         else:
             self.snake.pop()
 
-        # LEVEL
-        if self.food_eaten and self.food_eaten % 5 == 0:
-            self.level += 1
-            self.move_delay = max(60, self.move_delay - 10)
-            self.obstacles = self.spawn_obstacles()
-
-        # POISON
+        # ---------------- POISON ----------------
         if head == self.poison:
             for _ in range(2):
                 if len(self.snake)>1:
                     self.snake.pop()
             self.poison = self.spawn_poison()
 
-            if len(self.snake)<=1:
-                return "game_over"
+        # ---------------- POWERUP SPAWN ----------------
+        if self.power is None:
+            if random.randint(1,120) == 1:
+                self.power = self.spawn_power()
+                self.power_type = random.choice(["speed","slow","shield"])
+                self.power_spawn_time = pygame.time.get_ticks()
 
-        # POWERUP EXPIRY
-        now = pygame.time.get_ticks()
-
-        if self.power and now - self.power_spawn_time > 8000:
+        # remove power if not taken
+        if self.power and pygame.time.get_ticks() - self.power_spawn_time > 8000:
             self.power = None
             self.power_type = None
 
-        if self.power_type in ["speed","slow"] and now > self.power_active_until:
-            self.move_delay = 150 - self.level*5
-            self.power_type = None
-
-        # POWERUP PICKUP
+        # ---------------- POWERUP PICKUP ----------------
         if self.power and head == self.power:
 
-            self.power_type = random.choice(["speed","slow","shield"])
+            now = pygame.time.get_ticks()
 
+            # only one active effect at a time
             if self.power_type == "speed":
-                self.move_delay = max(40, self.move_delay - 60)
-                self.power_active_until = now + 5000
+                self.move_delay = 70
+                self.power_end_time = now + 5000
 
             elif self.power_type == "slow":
-                self.move_delay += 60
-                self.power_active_until = now + 5000
+                self.move_delay = 250
+                self.power_end_time = now + 5000
 
             elif self.power_type == "shield":
                 self.shield = True
 
             self.power = None
 
+        # reset timed effects
+        if self.power_end_time and pygame.time.get_ticks() > self.power_end_time:
+            self.move_delay = 150
+            self.power_end_time = 0
+
         return "running"
 
     # ---------------- INPUT ----------------
     def set_direction(self, d):
-        if d==(0,-1) and self.direction!=(0,1):
-            self.direction=d
-        elif d==(0,1) and self.direction!=(0,-1):
-            self.direction=d
-        elif d==(-1,0) and self.direction!=(1,0):
-            self.direction=d
-        elif d==(1,0) and self.direction!=(-1,0):
-            self.direction=d
+        if d==(0,-1) and self.direction!=(0,1): self.direction=d
+        if d==(0,1) and self.direction!=(0,-1): self.direction=d
+        if d==(-1,0) and self.direction!=(1,0): self.direction=d
+        if d==(1,0) and self.direction!=(-1,0): self.direction=d
 
     # ---------------- DRAW ----------------
     def draw(self, screen, color, grid=False):
@@ -163,24 +172,30 @@ class SnakeGame:
         if grid:
             for x in range(ROWS):
                 for y in range(ROWS):
-                    pygame.draw.rect(screen, (20,20,20),
+                    pygame.draw.rect(screen,(25,25,25),
                         (x*CELL,y*CELL,CELL,CELL),1)
 
+        # snake
         for s in self.snake:
             pygame.draw.rect(screen, color,
                 (s[0]*CELL,s[1]*CELL,CELL,CELL))
 
+        # food (variable size)
+        size = self.food["size"] * CELL
         pygame.draw.rect(screen, RED,
-            (self.food[0]*CELL,self.food[1]*CELL,CELL,CELL))
+            (self.food["pos"][0]*CELL,self.food["pos"][1]*CELL,size,size))
 
+        # poison
         pygame.draw.rect(screen, DARK_RED,
             (self.poison[0]*CELL,self.poison[1]*CELL,CELL,CELL))
 
+        # powerups
         if self.power:
             col = ORANGE if self.power_type=="speed" else CYAN if self.power_type=="slow" else GREEN
-            pygame.draw.rect(screen, col,
+            pygame.draw.rect(screen,col,
                 (self.power[0]*CELL,self.power[1]*CELL,CELL,CELL))
 
+        # obstacles
         for o in self.obstacles:
-            pygame.draw.rect(screen, (120,120,120),
+            pygame.draw.rect(screen, GRAY,
                 (o[0]*CELL,o[1]*CELL,CELL,CELL))
