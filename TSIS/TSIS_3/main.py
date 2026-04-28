@@ -18,15 +18,10 @@ class Game:
     def __init__(self, settings):
         self.settings = settings
 
-        # images
         self.player_img = load_img("player.png", (50,80))
         self.enemy_img  = load_img("enemy.png",  (50,80))
         self.coin_img   = load_img("coin.png",   (30,30))
 
-        # powerup = colored circle (no sprite needed)
-        self.powerup_size = 30
-
-        # sound
         pygame.mixer.music.load(os.path.join(ASSETS, "bg_music.mp3"))
         self.crash_sound = pygame.mixer.Sound(os.path.join(ASSETS, "crash.wav"))
 
@@ -55,24 +50,6 @@ class Game:
         self.scroll = 0
         self.alive = True
 
-    # ── SPAWNING (LESS CHAOS) ───────────────────────
-    def spawn_enemy(self):
-        if len(self.enemies) < 3:  # LIMIT enemies
-            lane = random.randint(0,2)
-            self.enemies.append({"lane":lane,"y":-100})
-
-    def spawn_coin(self):
-        if random.random() < 0.5:
-            lane = random.randint(0,2)
-            self.coins_list.append({"lane":lane,"y":-50})
-
-    def spawn_powerup(self):
-        if random.random() < 0.005:  # rare
-            lane = random.randint(0,2)
-            typ = random.choice(["nitro","shield","repair"])
-            self.powerups.append({"lane":lane,"y":-50,"type":typ})
-
-    # ── INPUT ───────────────────────────────────────
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
@@ -80,67 +57,74 @@ class Game:
             if event.key == pygame.K_RIGHT:
                 self.lane = min(2, self.lane+1)
 
-    # ── UPDATE ──────────────────────────────────────
+    def spawn_enemy(self):
+        if len(self.enemies) < 3:
+            self.enemies.append({"lane":random.randint(0,2),"y":-100})
+
+    def spawn_coin(self):
+        if random.random() < 0.5:
+            self.coins_list.append({"lane":random.randint(0,2),"y":-50})
+
+    def spawn_powerup(self):
+        if random.random() < 0.005:
+            typ = random.choice(["nitro","shield","repair"])
+            self.powerups.append({"lane":random.randint(0,2),"y":-50,"type":typ})
+
     def update(self, dt):
         self.scroll += self.speed * dt
         self.distance += self.speed * dt
         self.score = int(self.distance / 10)
 
-        # spawn slower
         if random.random() < 0.015:
             self.spawn_enemy()
         if random.random() < 0.02:
             self.spawn_coin()
         self.spawn_powerup()
 
-        player_rect = pygame.Rect(LANES[self.lane], 700, 50, 80)
+        player = pygame.Rect(LANES[self.lane], 700, 50, 80)
 
-        # enemies
         for e in self.enemies[:]:
             e["y"] += self.speed * dt
             rect = pygame.Rect(LANES[e["lane"]], e["y"], 50, 80)
 
-            if rect.colliderect(player_rect):
+            if rect.colliderect(player):
                 if self.shield:
                     self.shield = False
                     self.enemies.remove(e)
                 else:
-                    self.crash_sound.play()
+                    if self.settings["sound"]:
+                        self.crash_sound.play()
                     self.alive = False
-
             elif e["y"] > H:
                 self.enemies.remove(e)
 
-        # coins
         for c in self.coins_list[:]:
             c["y"] += self.speed * dt
             rect = pygame.Rect(LANES[c["lane"]], c["y"], 30, 30)
 
-            if rect.colliderect(player_rect):
+            if rect.colliderect(player):
                 self.coins += 1
                 self.coins_list.remove(c)
             elif c["y"] > H:
                 self.coins_list.remove(c)
 
-        # powerups
         for p in self.powerups[:]:
             p["y"] += self.speed * dt
             rect = pygame.Rect(LANES[p["lane"]], p["y"], 30, 30)
 
-            if rect.colliderect(player_rect):
-                self.activate_powerup(p["type"])
+            if rect.colliderect(player):
+                self.activate(p["type"])
                 self.powerups.remove(p)
             elif p["y"] > H:
                 self.powerups.remove(p)
 
-        # timers
         if self.power_timer > 0:
             self.power_timer -= dt
         else:
             self.powerup = None
             self.speed = self.base_speed
 
-    def activate_powerup(self, typ):
+    def activate(self, typ):
         self.powerup = typ
         self.power_timer = 5
 
@@ -149,9 +133,8 @@ class Game:
         elif typ == "shield":
             self.shield = True
         elif typ == "repair":
-            self.alive = True  # revive if needed
+            self.alive = True
 
-    # ── DRAW ────────────────────────────────────────
     def draw(self, screen):
         draw_road(screen, self.scroll)
 
@@ -163,7 +146,6 @@ class Game:
         for c in self.coins_list:
             screen.blit(self.coin_img, (LANES[c["lane"]], c["y"]))
 
-        # powerups (colored circles)
         colors = {"nitro":(255,140,0),"shield":(0,200,255),"repair":(0,255,100)}
         for p in self.powerups:
             pygame.draw.circle(screen, colors[p["type"]],
@@ -172,7 +154,12 @@ class Game:
         draw_hud(screen, self.score, self.coins, self.powerup, self.power_timer)
 
 
-# ── MAIN LOOP ──────────────────────────────────────
+def draw_text(screen, text, y):
+    font = pygame.font.SysFont(None, 40)
+    surf = font.render(text, True, WHITE)
+    screen.blit(surf, surf.get_rect(center=(W//2, y)))
+
+
 def main():
     pygame.init()
     pygame.mixer.init()
@@ -182,6 +169,7 @@ def main():
 
     settings = load_settings()
     game = Game(settings)
+    leaderboard = load_leaderboard()
 
     state = "menu"
 
@@ -196,6 +184,12 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game = Game(settings)
                     state = "game"
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_l:
+                        leaderboard = load_leaderboard()
+                        state = "leaderboard"
+                    if event.key == pygame.K_s:
+                        state = "settings"
 
             elif state == "game":
                 game.handle_event(event)
@@ -204,6 +198,22 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     state = "menu"
 
+            elif state == "leaderboard":
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    state = "menu"
+
+            elif state == "settings":
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        save_settings(settings)
+                        state = "menu"
+                    if event.key == pygame.K_d:
+                        diff = ["easy","normal","hard"]
+                        i = diff.index(settings["difficulty"])
+                        settings["difficulty"] = diff[(i+1)%3]
+                    if event.key == pygame.K_m:
+                        settings["sound"] = not settings["sound"]
+
         if state == "game":
             game.update(dt)
             if not game.alive:
@@ -211,19 +221,33 @@ def main():
                 pygame.mixer.music.stop()
                 state = "gameover"
 
-        # draw
         screen.fill(BLACK)
 
         if state == "menu":
-            draw_text = pygame.font.SysFont(None, 50).render
-            screen.blit(draw_text("CLICK TO PLAY", True, WHITE), (120,300))
+            draw_text(screen, "CLICK TO PLAY", 300)
+            draw_text(screen, "L - LEADERBOARD", 360)
+            draw_text(screen, "S - SETTINGS", 420)
 
         elif state == "game":
             game.draw(screen)
 
         elif state == "gameover":
-            font = pygame.font.SysFont(None, 50)
-            screen.blit(font.render("GAME OVER", True, RED), (130,300))
+            draw_text(screen, "GAME OVER", 300)
+
+        elif state == "leaderboard":
+            draw_text(screen, "TOP 10", 100)
+            y = 160
+            for i,e in enumerate(leaderboard):
+                txt = f"{i+1}. {e['name']} {e['score']} {e['coins']}"
+                draw_text(screen, txt, y)
+                y += 40
+
+        elif state == "settings":
+            draw_text(screen, "SETTINGS", 200)
+            draw_text(screen, f"Difficulty: {settings['difficulty']}", 260)
+            draw_text(screen, f"Sound: {'ON' if settings['sound'] else 'OFF'}", 320)
+            draw_text(screen, "D - change difficulty", 400)
+            draw_text(screen, "M - toggle sound", 440)
 
         pygame.display.flip()
 
