@@ -16,5 +16,11 @@
         "score": 147,
         "distance": 1476,
         "coins": 0
+    },
+    {
+        "name": "Player",
+        "score": 39,
+        "distance": 392,
+        "coins": 2
     }
 ]
