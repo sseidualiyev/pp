@@ -11,6 +11,16 @@
     },
     {
         "name": "PLAYER",
+        "score": 5,
+        "distance": 244
+    },
+    {
+        "name": "PLAYER",
+        "score": 5,
+        "distance": 265
+    },
+    {
+        "name": "PLAYER",
         "score": 0,
         "distance": 36
     },
@@ -38,15 +48,5 @@
         "name": "PLAYER",
         "score": 0,
         "distance": 295
-    },
-    {
-        "name": "PLAYER",
-        "score": 0,
-        "distance": 81
-    },
-    {
-        "name": "PLAYER",
-        "score": 0,
-        "distance": 96
     }
 ]

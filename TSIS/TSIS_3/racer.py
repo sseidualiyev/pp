@@ -71,7 +71,8 @@ class RacerGame:
         self.distance = 0
         self.score = 0
 
-        self.ENEMY_SPEED = 6
+        self.base_speed = 4
+        self.ENEMY_SPEED = self.base_speed
 
         self.traffic = [TrafficCar(assets["enemy"]) for _ in range(2)]
         self.obstacles = [Obstacle() for _ in range(3)]
