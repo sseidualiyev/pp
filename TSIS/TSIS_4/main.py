@@ -152,6 +152,7 @@ while running:
                     state = MENU
 
     pygame.display.flip()
-    clock.tick(60)
+    BASE_FPS = 60
+    clock.tick(BASE_FPS)
 
 pygame.quit()
