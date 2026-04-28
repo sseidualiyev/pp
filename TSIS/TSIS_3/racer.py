@@ -12,16 +12,16 @@ LANES = [120, 240, 360]
 class PowerUp:
     def __init__(self, image):
         self.image = image
-        self.type = random.choice(["nitro", "shield", "repair"])
         self.spawn()
 
     def spawn(self):
-        self.lane = random.choice(LANES)
-        self.rect = self.image.get_rect(center=(self.lane, -100))
-        self.speed = 5
+        self.type = random.choice(["nitro", "shield", "repair"])
+        self.rect = self.image.get_rect(center=(random.choice(LANES), random.randint(-800, -200)))
+        self.base_speed = 1.5
 
-    def update(self, speed_factor):
-        self.rect.y += self.speed * speed_factor
+    def update(self, global_speed):
+        self.rect.y += self.base_speed * global_speed
+
         if self.rect.top > SCREEN_HEIGHT:
             self.spawn()
 
@@ -33,11 +33,12 @@ class Obstacle:
 
     def spawn(self):
         self.lane = random.choice(LANES)
-        self.rect = pygame.Rect(self.lane, -100, 50, 80)
-        self.speed = random.randint(6, 10)
+        self.rect = pygame.Rect(self.lane, random.randint(-800, -200), 50, 80)
+        self.base_speed = random.uniform(1.2, 2.2)
 
-    def update(self, speed_factor):
-        self.rect.y += self.speed * speed_factor
+    def update(self, global_speed):
+        self.rect.y += self.base_speed * global_speed
+
         if self.rect.top > SCREEN_HEIGHT:
             self.spawn()
 
@@ -46,15 +47,16 @@ class Obstacle:
 class TrafficCar:
     def __init__(self, image):
         self.image = image
+        self.base_speed = random.uniform(1.0, 2.0)
         self.spawn()
 
     def spawn(self):
         self.lane = random.choice(LANES)
-        self.rect = self.image.get_rect(center=(self.lane, -200))
-        self.speed = random.uniform(1.0, 1.8)
+        self.rect = self.image.get_rect(center=(self.lane, random.randint(-800, -200)))
 
-    def update(self, speed_factor):
-        self.rect.y += self.speed * speed_factor
+    def update(self, global_speed):
+        self.rect.y += self.base_speed * global_speed
+
         if self.rect.top > SCREEN_HEIGHT:
             self.spawn()
 
@@ -110,37 +112,33 @@ class RacerGame:
     def update(self):
         self.distance += 1
 
-        speed_factor = 1 + (self.distance / 5000)  # smooth scaling
+        # VERY IMPORTANT: keep this small
+        global_speed = 2 + (self.distance / 3000)
 
         # traffic
         for t in self.traffic:
-            t.update(speed_factor)
+            t.update(global_speed)
 
             if self.player.colliderect(t.rect):
-                if self.shield:
-                    self.shield = False
-                else:
+                if not self.shield:
                     return "game_over"
+                self.shield = False
 
         # obstacles
         for o in self.obstacles:
-            o.update(speed_factor)
+            o.update(global_speed)
 
             if self.player.colliderect(o.rect):
-                if self.shield:
-                    self.shield = False
-                else:
+                if not self.shield:
                     return "game_over"
+                self.shield = False
 
         # powerups
         for p in self.powerups:
-            p.update(speed_factor)
+            p.update(global_speed)
 
             if self.player.colliderect(p.rect):
                 self.apply_powerup(p.type)
                 p.spawn()
-
-        # difficulty (FIXED — no instant jumps)
-        self.ENEMY_SPEED = 4 + (self.distance // 1500)
 
         return "running"
