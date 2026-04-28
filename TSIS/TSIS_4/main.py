@@ -54,8 +54,40 @@ while running:
         text("S = Settings",240,400)
 
         for e in events:
-            if e.type == pygame.QUIT:
-                running=False
+            if e.type == pygame.KEYDOWN:
+
+                # ---------------- COLOR ----------------
+                if e.key == pygame.K_r:
+                    snake_color = (255,0,0)
+
+                elif e.key == pygame.K_g:
+                    snake_color = (0,255,0)
+
+                elif e.key == pygame.K_b:
+                    snake_color = (0,0,255)
+
+                # ---------------- GRID TOGGLE ----------------
+                elif e.key == pygame.K_f:
+                    grid = not grid   # ON/OFF toggle
+
+                # ---------------- SOUND TOGGLE ----------------
+                elif e.key == pygame.K_m:
+                    sound = not sound
+
+                    if sound:
+                        pygame.mixer.init()
+                        pygame.mixer.music.load("assets/bg.mp3")
+                        pygame.mixer.music.play(-1)
+                    else:
+                        pygame.mixer.music.stop()
+
+                # ---------------- EXIT ----------------
+                elif e.key == pygame.K_ESCAPE:
+                    settings["snake_color"] = list(snake_color)
+                    settings["grid"] = grid
+                    settings["sound"] = sound
+                    save_settings(settings)
+                    state = MENU
 
             if e.type == pygame.KEYDOWN:
 
