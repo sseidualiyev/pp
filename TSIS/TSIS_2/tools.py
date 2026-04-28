@@ -43,3 +43,19 @@ def flood_fill(surface, x, y, target_color, replacement_color):
         stack.append((cx, cy-1))
 
 
+# =========================
+# SAVE CANVAS
+# =========================
+def save_canvas(surface):
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"canvas_{timestamp}.png"
+    pygame.image.save(surface, filename)
+    print("Saved:", filename)
+
+
+# =========================
+# TEXT RENDER FINAL
+# =========================
+def render_text(surface, text, font, color, pos):
+    img = font.render(text, True, color)
+    surface.blit(img, pos)
