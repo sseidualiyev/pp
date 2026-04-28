@@ -14,7 +14,7 @@ BLACK = (0,0,0)
 
 init_db()
 
-# ---------------- STATE ----------------
+# ---------------- STATES ----------------
 MENU, GAME, LEADERBOARD, SETTINGS = "menu","game","lb","settings"
 state = MENU
 
@@ -23,11 +23,11 @@ game = SnakeGame()
 # ---------------- USER ----------------
 username = ""
 player_id = None
+typing_name = True   # ✅ FIX: prevents L/S conflict
 
 settings = load_settings()
 snake_color = tuple(settings["snake_color"])
 
-# ---------------- HELPERS ----------------
 def draw_text(text, x, y, size=30):
     font = pygame.font.SysFont(None, size)
     screen.blit(font.render(text, True, WHITE), (x,y))
@@ -36,7 +36,6 @@ def draw_text(text, x, y, size=30):
 running = True
 while running:
     screen.fill(BLACK)
-
     events = pygame.event.get()
 
     # =================================================
@@ -54,22 +53,27 @@ while running:
                 running = False
 
             if e.type == pygame.KEYDOWN:
+
+                # ✅ START GAME ONLY IF NAME EXISTS
                 if e.key == pygame.K_RETURN and username:
                     player_id = get_or_create_player(username)
                     game.reset()
                     state = GAME
+                    typing_name = False
 
-                elif e.key == pygame.K_l:
-                    state = LEADERBOARD
+                # ✅ ONLY NAVIGATION WHEN NOT TYPING
+                elif not typing_name:
+                    if e.key == pygame.K_l:
+                        state = LEADERBOARD
+                    elif e.key == pygame.K_s:
+                        state = SETTINGS
 
-                elif e.key == pygame.K_s:
-                    state = SETTINGS
-
-                elif e.key == pygame.K_BACKSPACE:
-                    username = username[:-1]
-
+                # ✅ TYPING MODE
                 else:
-                    username += e.unicode
+                    if e.key == pygame.K_BACKSPACE:
+                        username = username[:-1]
+                    elif e.unicode.isalnum():
+                        username += e.unicode
 
     # =================================================
     # GAME
@@ -83,6 +87,7 @@ while running:
             if e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
                     state = MENU
+                    typing_name = True   # reset typing mode
 
                 if e.key == pygame.K_UP:
                     game.set_direction((0,-1))
@@ -93,11 +98,15 @@ while running:
                 if e.key == pygame.K_RIGHT:
                     game.set_direction((1,0))
 
-        status = game.update()
+        # ✅ FIXED SPEED CONTROL
+        if game.can_move():
+            status = game.update()
 
-        if status == "game_over":
-            save_session(player_id, game.score, game.level)
-            state = MENU
+            if status == "game_over":
+                save_session(player_id, game.score, game.level)
+                state = MENU
+                typing_name = True
+                username = ""
 
         game.draw(screen, snake_color)
 
@@ -108,16 +117,16 @@ while running:
     # LEADERBOARD
     # =================================================
     elif state == LEADERBOARD:
-        draw_text("LEADERBOARD (TOP 10)", 150, 50, 30)
+        draw_text("LEADERBOARD", 220, 50, 40)
 
         data = get_leaderboard()
-
         y = 120
+
         for i, row in enumerate(data):
             draw_text(f"{i+1}. {row[0]} | {row[1]} | L{row[2]}", 120, y)
             y += 40
 
-        draw_text("ESC - Back", 220, 520)
+        draw_text("ESC - Back", 240, 520)
 
         for e in events:
             if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
@@ -128,31 +137,26 @@ while running:
     # =================================================
     elif state == SETTINGS:
         draw_text("SETTINGS", 250, 80, 40)
-
         draw_text(f"Snake color: {snake_color}", 150, 200)
-        draw_text("R - Red, G - Green, B - Blue", 150, 240)
-
-        draw_text("ESC - Back", 220, 500)
+        draw_text("R / G / B", 150, 240)
+        draw_text("ESC - Back", 240, 500)
 
         for e in events:
             if e.type == pygame.KEYDOWN:
 
                 if e.key == pygame.K_r:
                     snake_color = (255,0,0)
-
-                if e.key == pygame.K_g:
+                elif e.key == pygame.K_g:
                     snake_color = (0,255,0)
-
-                if e.key == pygame.K_b:
+                elif e.key == pygame.K_b:
                     snake_color = (0,0,255)
 
-                if e.key == pygame.K_ESCAPE:
+                elif e.key == pygame.K_ESCAPE:
                     settings["snake_color"] = list(snake_color)
                     save_settings(settings)
                     state = MENU
 
     pygame.display.flip()
-    BASE_FPS = 60
-    clock.tick(BASE_FPS)
+    clock.tick(60)
 
 pygame.quit()
