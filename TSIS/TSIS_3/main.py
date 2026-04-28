@@ -39,44 +39,51 @@ def main():
             # ── MENU ─────────────────────────────
             if state == "menu":
 
-                draw_text(screen, "PRESS ENTER TO TYPE NAME", 220)
+                draw_text(screen, "PRESS ENTER TO EDIT NAME", 220)
 
-                if typing_name:
-                    draw_text(screen, player_name + "_", 260)
-                else:
-                    draw_text(screen, "NAME: " + player_name, 260)
+            # visual name display
+            if typing_name:
+                draw_text(screen, player_name + "_", 260)
+            else:
+                draw_text(screen, "NAME: " + player_name, 260)
 
-                draw_text(screen, "CLICK TO START", 320)
-                draw_text(screen, "L - LEADERBOARD", 380)
-                draw_text(screen, "S - SETTINGS", 440)
+            draw_text(screen, "CLICK TO START", 320)
+            draw_text(screen, "L - LEADERBOARD", 380)
+            draw_text(screen, "S - SETTINGS", 440)
 
-                if event.type == pygame.KEYDOWN:
 
-                    # start typing mode
-                    if event.key == pygame.K_RETURN:
-                        typing_name = True
+            # ── INPUT HANDLING ──
+            if event.type == pygame.KEYDOWN:
 
-                    # typing input only works if active
-                    elif typing_name:
-                        if event.key == pygame.K_BACKSPACE:
-                            player_name = player_name[:-1]
-                        else:
-                            if len(player_name) < 12 and event.unicode.isprintable():
-                                player_name += event.unicode
+                # toggle typing mode
+                if event.key == pygame.K_RETURN:
+                    typing_name = not typing_name   # IMPORTANT FIX
+
+                # typing only works in typing mode
+                elif typing_name:
+
+                    if event.key == pygame.K_BACKSPACE:
+                        player_name = player_name[:-1]
 
                     else:
-                        if event.key == pygame.K_l:
-                            leaderboard = load_leaderboard()
-                            state = "leaderboard"
+                        if len(player_name) < 12 and event.unicode.isprintable():
+                            player_name += event.unicode
 
-                        elif event.key == pygame.K_s:
-                            state = "settings"
+                # menu navigation only when NOT typing
+                else:
+                    if event.key == pygame.K_l:
+                        leaderboard = load_leaderboard()
+                        state = "leaderboard"
 
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if player_name.strip() != "":
-                        game = Game(settings)
-                        game.player_name = player_name
-                        state = "game"
+                    elif event.key == pygame.K_s:
+                        state = "settings"
+
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if player_name.strip() != "":
+                    game = Game(settings)
+                    game.player_name = player_name
+                    state = "game"
 
             # ── GAME ─────────────────────────────
             elif state == "game":

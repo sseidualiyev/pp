@@ -24,6 +24,12 @@
         "coins": 9
     },
     {
+        "name": "sdsdw",
+        "score": 683,
+        "distance": 6838,
+        "coins": 19
+    },
+    {
         "name": "Player",
         "score": 532,
         "distance": 5328,
@@ -48,15 +54,9 @@
         "coins": 0
     },
     {
-        "name": "Player",
-        "score": 105,
-        "distance": 1051,
-        "coins": 0
-    },
-    {
-        "name": "Player",
-        "score": 95,
-        "distance": 955,
-        "coins": 2
+        "name": "sdsdwlllllll",
+        "score": 107,
+        "distance": 1076,
+        "coins": 3
     }
 ]
