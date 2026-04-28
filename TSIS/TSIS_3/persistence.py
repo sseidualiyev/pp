@@ -28,3 +28,9 @@ def load_leaderboard():
         return json.load(f)
 
 
+def save_leaderboard(data):
+    data = sorted(data, key=lambda x: x["score"], reverse=True)[:10]
+    with open(LEADERBOARD_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+
