@@ -77,13 +77,13 @@ def main():
                     brush_size = 10
 
                 # COLORS
-                elif event.key == pygame.K_r:
+                elif event.key == pygame.K_a:
                     color = (255, 0, 0)
-                elif event.key == pygame.K_g:
+                elif event.key == pygame.K_s:
                     color = (0, 255, 0)
-                elif event.key == pygame.K_b:
+                elif event.key == pygame.K_d:
                     color = (0, 0, 255)
-                elif event.key == pygame.K_w:
+                elif event.key == pygame.K_f:
                     color = (255, 255, 255)
 
                 # SAVE
