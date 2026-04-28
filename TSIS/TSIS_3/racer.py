@@ -17,7 +17,7 @@ class PowerUp:
     def spawn(self):
         self.type = random.choice(["nitro", "shield", "repair"])
         self.rect = self.image.get_rect(center=(random.choice(LANES), random.randint(-800, -200)))
-        self.base_speed = 0.5
+        self.base_speed = 2.0
 
     def update(self, global_speed):
         self.rect.y += self.base_speed * global_speed
@@ -34,7 +34,7 @@ class Obstacle:
     def spawn(self):
         self.lane = random.choice(LANES)
         self.rect = pygame.Rect(self.lane, random.randint(-800, -200), 50, 80)
-        self.base_speed = random.uniform(0.5, 1.0)
+        self.base_speed = random.uniform(3.0, 4.5)
 
     def update(self, global_speed):
         self.rect.y += self.base_speed * global_speed
@@ -47,7 +47,7 @@ class Obstacle:
 class TrafficCar:
     def __init__(self, image):
         self.image = image
-        self.base_speed = random.uniform(0.5, 1.0)
+        self.base_speed = random.uniform(2.5, 4.0)
         self.spawn()
 
     def spawn(self):
@@ -73,7 +73,7 @@ class RacerGame:
         self.distance = 0
         self.score = 0
 
-        self.base_speed = 0.5
+        self.base_speed = 0.1
         self.ENEMY_SPEED = self.base_speed
 
         self.traffic = [TrafficCar(assets["enemy"]) for _ in range(2)]
@@ -97,7 +97,7 @@ class RacerGame:
     # ---------------- POWERUPS ----------------
     def apply_powerup(self, ptype):
         if ptype == "nitro":
-            self.ENEMY_SPEED += 0.1
+            self.ENEMY_SPEED += 0.05
             self.active_powerup = "NITRO"
             self.powerup_end_time = time.time() + 4
 
@@ -112,7 +112,7 @@ class RacerGame:
     def update(self):
         self.distance += 1
 
-        global_speed = 0.4 + (self.distance / 3000)
+        global_speed = 1.2 + min(self.distance * 0.0002, 1.0)
 
         # traffic
         for t in self.traffic:
