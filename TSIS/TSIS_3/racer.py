@@ -82,3 +82,26 @@ class RacerGame:
 
         self.shield = False
 
+    # ---------------- PLAYER ----------------
+    def move_player(self, direction):
+        if direction == "left" and self.lane_index > 0:
+            self.lane_index -= 1
+        if direction == "right" and self.lane_index < 2:
+            self.lane_index += 1
+
+        self.player.centerx = LANES[self.lane_index]
+
+    # ---------------- POWERUPS ----------------
+    def apply_powerup(self, ptype):
+        if ptype == "nitro":
+            self.ENEMY_SPEED += 4
+            self.active_powerup = "NITRO"
+            self.powerup_end_time = time.time() + 4
+
+        elif ptype == "shield":
+            self.shield = True
+            self.active_powerup = "SHIELD"
+
+        elif ptype == "repair":
+            self.coins += 5
+
