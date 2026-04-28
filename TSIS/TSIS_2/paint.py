@@ -6,13 +6,11 @@ def main():
     pygame.init()
 
     screen = pygame.display.set_mode((640, 480))
-    pygame.display.set_caption("Paint App")
     clock = pygame.time.Clock()
 
     canvas = pygame.Surface(screen.get_size())
     canvas.fill((0, 0, 0))
 
-    # STATE
     tool = "brush"
     color = (0, 0, 255)
 
@@ -39,32 +37,37 @@ def main():
                 running = False
 
             # =========================
-            # KEY CONTROLS
+            # KEYBOARD
             # =========================
             if event.type == pygame.KEYDOWN:
 
-                # EXIT
                 if event.key == pygame.K_ESCAPE:
-                    if typing:
-                        typing = False
-                        text = ""
-                    else:
-                        running = False
+                    running = False
 
                 # TOOLS
-                if event.key == pygame.K_1:
+                elif event.key == pygame.K_1:
                     tool = "brush"
                 elif event.key == pygame.K_2:
                     tool = "line"
                 elif event.key == pygame.K_3:
-                    tool = "eraser"
+                    tool = "rectangle"
                 elif event.key == pygame.K_4:
-                    tool = "fill"
+                    tool = "circle"
                 elif event.key == pygame.K_5:
+                    tool = "square"
+                elif event.key == pygame.K_6:
+                    tool = "rtriangle"
+                elif event.key == pygame.K_7:
+                    tool = "etriangle"
+                elif event.key == pygame.K_8:
+                    tool = "rhombus"
+                elif event.key == pygame.K_9:
+                    tool = "fill"
+                elif event.key == pygame.K_0:
                     tool = "text"
 
                 # BRUSH SIZE
-                elif event.key == pygame.K_1:
+                elif event.key == pygame.K_1 and pygame.key.get_mods() == 0:
                     brush_size = 2
                 elif event.key == pygame.K_2:
                     brush_size = 5
@@ -113,7 +116,7 @@ def main():
                         target = canvas.get_at(event.pos)
                         tools.flood_fill(canvas, event.pos[0], event.pos[1], target, color)
 
-                    # TEXT TOOL
+                    # TEXT
                     elif tool == "text":
                         text_pos = event.pos
                         typing = True
@@ -128,8 +131,27 @@ def main():
 
                     end_pos = event.pos
 
+                    # SHAPES
                     if tool == "line":
                         tools.draw_line(canvas, color, start_pos, end_pos, brush_size)
+
+                    elif tool == "rectangle":
+                        tools.draw_rectangle(canvas, color, start_pos, end_pos, brush_size)
+
+                    elif tool == "circle":
+                        tools.draw_circle(canvas, color, start_pos, end_pos, brush_size)
+
+                    elif tool == "square":
+                        tools.draw_square(canvas, color, start_pos, end_pos, brush_size)
+
+                    elif tool == "rtriangle":
+                        tools.draw_rtriangle(canvas, color, start_pos, end_pos, brush_size)
+
+                    elif tool == "etriangle":
+                        tools.draw_etriangle(canvas, color, start_pos, end_pos, brush_size)
+
+                    elif tool == "rhombus":
+                        tools.draw_rhombus(canvas, color, start_pos, end_pos, brush_size)
 
                     drawing = False
 
@@ -148,18 +170,9 @@ def main():
                         pygame.draw.circle(canvas, (0, 0, 0), event.pos, eraser_size)
 
         # =========================
-        # RENDER
+        # DRAW
         # =========================
         screen.blit(canvas, (0, 0))
-
-        # LINE PREVIEW
-        if drawing and tool == "line":
-            pygame.draw.line(screen, color, start_pos, pygame.mouse.get_pos(), brush_size)
-
-        # TEXT PREVIEW
-        if typing:
-            preview = font.render(text, True, color)
-            screen.blit(preview, text_pos)
 
         pygame.display.flip()
         clock.tick(60)
