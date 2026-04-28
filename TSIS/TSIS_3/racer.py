@@ -1,68 +1,77 @@
 import pygame
+import os
 import random
-from ui import *
 
-PLAYER_Y = H - 120
+from ui import (
+    W, H, ROAD_LEFT, ROAD_RIGHT, ROAD_W, NUM_LANES,
+    lane_center, draw_road, draw_hud,
+    BLACK, WHITE, YELLOW, ORANGE, CYAN, GREEN
+)
+
+ASSETS = "assets"
+
+
+def load_img(name, size):
+    img = pygame.image.load(os.path.join(ASSETS, name)).convert_alpha()
+    return pygame.transform.scale(img, size)
 
 
 # ─────────────────────────────────────────────
-# MAIN GAME CLASS
+# GAME CLASS
 # ─────────────────────────────────────────────
 class Game:
-    def __init__(self, username, settings):
-        self.username = username
+    def __init__(self, settings):
         self.settings = settings
 
-        # difficulty tuning
-        diff = settings.get("difficulty", "normal")
-        self.difficulty_map = {
-            "easy":   {"speed": 4, "enemy_rate": 90},
-            "normal": {"speed": 6, "enemy_rate": 70},
-            "hard":   {"speed": 8, "enemy_rate": 50},
-        }
-        cfg = self.difficulty_map.get(diff, self.difficulty_map["normal"])
+        # sprites
+        self.player_img = load_img("player.png", (50, 80))
+        self.enemy_img  = load_img("enemy.png", (50, 80))
+        self.coin_img   = load_img("coin.png", (30, 30))
 
-        self.base_speed = cfg["speed"]
-        self.enemy_rate = cfg["enemy_rate"]
+        # sounds
+        self.music_path = os.path.join(ASSETS, "bg_music.mp3")
+        self.crash_sound = pygame.mixer.Sound(os.path.join(ASSETS, "crash.wav"))
 
-        # player state
+        if settings["sound"]:
+            pygame.mixer.music.load(self.music_path)
+            pygame.mixer.music.play(-1)
+
+        self.reset()
+
+    # ─────────────────────────────────────────────
+    def reset(self):
         self.lane = 1
-        self.lives = 2
 
-        # game stats
-        self.score = 0
-        self.distance = 0
-        self.coins = 0
-
-        # world speed
+        base = {
+            "easy": 180,
+            "normal": 240,
+            "hard": 320
+        }
+        self.base_speed = base[self.settings["difficulty"]]
         self.speed = self.base_speed
 
-        # entities
+        self.scroll = 0
+        self.distance = 0
+        self.score = 0
+        self.coins = 0
+
+        self.lives = 2  # ✅ 2 crash system
+
         self.enemies = []
-        self.coins_list = []
+        self.coin_list = []
         self.powerups = []
 
-        # power-up system (ONLY ONE ACTIVE)
-        self.active_powerup = None
-        self.power_timer = 0.0
+        self.powerup = None
+        self.power_timer = 0
+        self.shield = 0  # shield absorbs 2 hits total
 
-        # shield is separate safety state
-        self.shield = False
+        self.alive = True
 
-        # timers
+        # spawn control (reduces overcrowding)
         self.enemy_timer = 0
         self.coin_timer = 0
         self.power_timer_spawn = 0
 
-        # state
-        self.alive = True
-        self.finished = False
-
-        self.font_sm = pygame.font.SysFont("consolas", 16, bold=True)
-        self.font_md = pygame.font.SysFont("consolas", 20, bold=True)
-
-    # ─────────────────────────────────────────────
-    # INPUT
     # ─────────────────────────────────────────────
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -72,157 +81,134 @@ class Game:
                 self.lane = min(2, self.lane + 1)
 
     # ─────────────────────────────────────────────
-    # SPAWNING (CONTROLLED = NO SPAWN CHAOS)
-    # ─────────────────────────────────────────────
     def spawn_enemy(self):
-        if len(self.enemies) < 2:  # LIMIT = fair gameplay
-            self.enemies.append({"lane": random.randint(0, 2), "y": -100})
+        self.enemies.append({
+            "lane": random.randint(0, 2),
+            "y": -100
+        })
 
     def spawn_coin(self):
-        if random.random() < 0.35:
-            self.coins_list.append({"lane": random.randint(0, 2), "y": -50})
+        self.coin_list.append({
+            "lane": random.randint(0, 2),
+            "y": -50
+        })
 
     def spawn_powerup(self):
-        if random.random() < 0.008 and not self.active_powerup:
-            self.powerups.append({
-                "lane": random.randint(0, 2),
-                "y": -50,
-                "type": random.choice(["nitro", "shield", "repair"])
-            })
+        self.powerups.append({
+            "lane": random.randint(0, 2),
+            "y": -60,
+            "type": random.choice(["nitro", "shield", "repair"])
+        })
 
     # ─────────────────────────────────────────────
-    # POWERUP SYSTEM (ONLY ONE ACTIVE)
-    # ─────────────────────────────────────────────
-    def activate_powerup(self, ptype):
-        self.active_powerup = ptype
-        self.power_timer = 5.0
+    def activate(self, typ):
+        self.powerup = typ
+        self.power_timer = 5
 
-        if ptype == "shield":
-            self.shield = True
-
-        elif ptype == "repair":
-            self.lives = min(2, self.lives + 1)
-
-        elif ptype == "nitro":
+        if typ == "nitro":
             self.speed = self.base_speed * 1.8
 
-    def update_powerup(self, dt):
-        if self.active_powerup:
-            self.power_timer -= dt
-            if self.power_timer <= 0:
-                self.active_powerup = None
-                self.shield = False
-                self.speed = self.base_speed
+        elif typ == "shield":
+            self.shield = 2  # 2 hits protection
 
-    # ─────────────────────────────────────────────
-    # GAME UPDATE
+        elif typ == "repair":
+            self.lives = min(2, self.lives + 1)
+
     # ─────────────────────────────────────────────
     def update(self, dt):
         if not self.alive:
             return
 
-        # speed scaling
-        self.speed = self.base_speed
+        self.scroll += self.speed * dt
+        self.distance += self.speed * dt
+        self.score = int(self.distance / 10)
 
-        self.distance += self.speed
-        self.score = int(self.distance * 0.5 + self.coins * 10)
+        player = pygame.Rect(lane_center(self.lane) - 25, 700, 50, 80)
 
-        # spawn logic
+        # ───── spawning (LESS OVERCROWDING FIX) ─────
         self.enemy_timer += 1
-        if self.enemy_timer >= self.enemy_rate:
-            self.enemy_timer = 0
-            self.spawn_enemy()
-
         self.coin_timer += 1
-        if self.coin_timer >= 40:
+        self.power_timer_spawn += 1
+
+        if self.enemy_timer > 80:
+            self.enemy_timer = 0
+            if len(self.enemies) < 2:  # limit enemies
+                self.spawn_enemy()
+
+        if self.coin_timer > 50:
             self.coin_timer = 0
             self.spawn_coin()
 
-        self.power_timer_spawn += 1
-        if self.power_timer_spawn >= 250:
+        if self.power_timer_spawn > 300:
             self.power_timer_spawn = 0
             self.spawn_powerup()
 
-        # update powerup timer
-        self.update_powerup(dt)
-
-        player_rect = pygame.Rect(lane_center(self.lane) - 18, PLAYER_Y - 30, 36, 60)
-
-        # ── ENEMIES ─────────────────────────────
+        # ───── update enemies ─────
         for e in self.enemies[:]:
-            e["y"] += self.speed
+            e["y"] += self.speed * dt
+            rect = pygame.Rect(lane_center(e["lane"]) - 25, e["y"], 50, 80)
 
-            rect = pygame.Rect(lane_center(e["lane"]) - 18, e["y"], 36, 60)
-
-            if rect.colliderect(player_rect):
-                if self.shield:
-                    self.shield = False
+            if rect.colliderect(player):
+                if self.shield > 0:
+                    self.shield -= 1
+                    self.enemies.remove(e)
                 else:
                     self.lives -= 1
+                    self.crash_sound.play()
+
+                    self.enemies.remove(e)
 
                     if self.lives <= 0:
                         self.alive = False
 
-                self.enemies.remove(e)
-
             elif e["y"] > H:
                 self.enemies.remove(e)
 
-        # ── COINS ───────────────────────────────
-        for c in self.coins_list[:]:
-            c["y"] += self.speed
+        # ───── coins ─────
+        for c in self.coin_list[:]:
+            c["y"] += self.speed * dt
+            rect = pygame.Rect(lane_center(c["lane"]) - 15, c["y"], 30, 30)
 
-            rect = pygame.Rect(lane_center(c["lane"]) - 10, c["y"], 20, 20)
-
-            if rect.colliderect(player_rect):
+            if rect.colliderect(player):
                 self.coins += 1
-                self.coins_list.remove(c)
+                self.coin_list.remove(c)
 
             elif c["y"] > H:
-                self.coins_list.remove(c)
+                self.coin_list.remove(c)
 
-        # ── POWERUPS ────────────────────────────
+        # ───── powerups ─────
         for p in self.powerups[:]:
-            p["y"] += self.speed
+            p["y"] += self.speed * dt
+            rect = pygame.Rect(lane_center(p["lane"]) - 20, p["y"], 40, 40)
 
-            rect = pygame.Rect(lane_center(p["lane"]) - 14, p["y"], 28, 28)
-
-            if rect.colliderect(player_rect):
-                if not self.active_powerup:
-                    self.activate_powerup(p["type"])
-
+            if rect.colliderect(player):
+                self.activate(p["type"])
                 self.powerups.remove(p)
 
             elif p["y"] > H:
                 self.powerups.remove(p)
 
-    # ─────────────────────────────────────────────
-    # DRAW
-    # ─────────────────────────────────────────────
-    def draw(self, surf):
-        draw_road(surf, self.distance)
+        # ───── power timer ─────
+        if self.power_timer > 0:
+            self.power_timer -= dt
+        else:
+            self.powerup = None
+            self.speed = self.base_speed
 
-        # draw player
-        pygame.draw.rect(
-            surf,
-            BLUE if self.shield else RED,
-            (lane_center(self.lane) - 18, PLAYER_Y - 30, 36, 60),
-            border_radius=6
-        )
+    # ─────────────────────────────────────────────
+    def draw(self, screen):
+        draw_road(screen, self.scroll)
+
+        # player
+        screen.blit(self.player_img, (lane_center(self.lane) - 25, 700))
 
         # enemies
         for e in self.enemies:
-            pygame.draw.rect(
-                surf, DARK,
-                (lane_center(e["lane"]) - 18, e["y"], 36, 60)
-            )
+            screen.blit(self.enemy_img, (lane_center(e["lane"]) - 25, e["y"]))
 
         # coins
-        for c in self.coins_list:
-            pygame.draw.circle(
-                surf, YELLOW,
-                (lane_center(c["lane"]), int(c["y"])), 10
-            )
+        for c in self.coin_list:
+            screen.blit(self.coin_img, (lane_center(c["lane"]) - 15, c["y"]))
 
         # powerups
         colors = {
@@ -232,30 +218,19 @@ class Game:
         }
 
         for p in self.powerups:
-            pygame.draw.rect(
-                surf,
+            pygame.draw.circle(
+                screen,
                 colors[p["type"]],
-                (lane_center(p["lane"]) - 12, p["y"], 24, 24)
+                (lane_center(p["lane"]), int(p["y"])),
+                12
             )
 
-        # HUD (UPDATED with LIVES)
-        self.draw_hud(surf)
-
-    # ─────────────────────────────────────────────
-    # HUD (score + distance + power + lives)
-    # ─────────────────────────────────────────────
-    def draw_hud(self, surf):
-        pygame.draw.rect(surf, (20, 20, 20), (0, 0, W, 60))
-
-        surf.blit(self.font_sm.render(f"Score: {self.score}", True, WHITE), (10, 5))
-        surf.blit(self.font_sm.render(f"Dist: {int(self.distance)}", True, WHITE), (10, 25))
-
-        surf.blit(self.font_sm.render(f"Coins: {self.coins}", True, YELLOW), (150, 5))
-
-        # lives (IMPORTANT PART YOU ASKED)
-        surf.blit(self.font_sm.render(f"Lives: {self.lives}", True, GREEN), (150, 25))
-
-        # power-up
-        if self.active_powerup:
-            txt = f"{self.active_powerup.upper()} {self.power_timer:.1f}s"
-            surf.blit(self.font_sm.render(txt, True, CYAN), (300, 5))
+        draw_hud(
+            screen,
+            self.score,
+            self.distance,
+            self.coins,
+            self.powerup,
+            self.power_timer,
+            self.lives
+        )
