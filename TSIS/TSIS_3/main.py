@@ -16,17 +16,17 @@ COIN_SIZE = (30, 30)
 
 assets = {
     "player": pygame.transform.scale(
-        pygame.image.load("Player.png").convert_alpha(),
+        pygame.image.load("assets/Player.png").convert_alpha(),
         PLAYER_SIZE
     ),
 
     "enemy": pygame.transform.scale(
-        pygame.image.load("Enemy.png").convert_alpha(),
+        pygame.image.load("assets/Enemy.png").convert_alpha(),
         ENEMY_SIZE
     ),
 
     "coin": pygame.transform.scale(
-        pygame.image.load("coin.png").convert_alpha(),
+        pygame.image.load("assets/coin.png").convert_alpha(),
         COIN_SIZE
     )
 }
