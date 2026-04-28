@@ -30,56 +30,51 @@ def main():
     while True:
         dt = clock.tick(60) / 1000
 
+        # ── EVENT HANDLING ─────────────────────────────
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-            # ── MENU ──
+            # ── MENU ─────────────────────────────
             if state == "menu":
 
-                # ── DRAW ─────────────────────────
-                draw_text(screen, "ENTER NAME:", 220)
-                draw_text(screen, player_name + "_", 260)
-                draw_text(screen, "PRESS ENTER TO CONFIRM", 320)
-                draw_text(screen, "CLICK TO START", 380)
-                draw_text(screen, "L - LEADERBOARD", 440)
-                draw_text(screen, "S - SETTINGS", 480)
-
-                # ── INPUT HANDLING ───────────────
-                if event.type == pygame.KEYDOWN:
-
-                    # name typing
-                    if typing_name:
+                if typing_name:
+                    if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN:
                             typing_name = False
                         elif event.key == pygame.K_BACKSPACE:
                             player_name = player_name[:-1]
                         else:
-                            if len(player_name) < 12:
+                            if len(player_name) < 12 and event.unicode.isprintable():
                                 player_name += event.unicode
 
-                    # menu navigation only AFTER name confirmed
-                    else:
-                        if event.key == pygame.K_l:
+                else:
+                    if event.type == pygame.KEYDOWN:
+
+                        if event.key == pygame.K_RETURN:
+                            typing_name = True
+
+                        elif event.key == pygame.K_l:
                             leaderboard = load_leaderboard()
                             state = "leaderboard"
 
-                        if event.key == pygame.K_s:
+                        elif event.key == pygame.K_s:
                             state = "settings"
 
-                # ── START GAME ───────────────────
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if not typing_name and player_name.strip() != "":
-                        game = Game(settings)
-                        game.player_name = player_name
-                        state = "game"
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if player_name.strip() != "":
+                            game = Game(settings)
+                            game.player_name = player_name
+                            state = "game"
 
-            # ── GAME ──
+
+            # ── GAME ─────────────────────────────
             elif state == "game":
                 game.handle_event(event)
 
-            # ── SETTINGS ──
+
+            # ── SETTINGS ─────────────────────────
             elif state == "settings":
                 if event.type == pygame.KEYDOWN:
 
@@ -87,17 +82,24 @@ def main():
                         save_settings(settings)
                         state = "menu"
 
-                    if event.key == pygame.K_d:
+                    elif event.key == pygame.K_d:
                         order = ["easy", "normal", "hard"]
                         i = order.index(settings["difficulty"])
                         settings["difficulty"] = order[(i + 1) % 3]
 
-                    if event.key == pygame.K_m:
+                    elif event.key == pygame.K_m:
                         settings["sound"] = not settings["sound"]
                         game.settings = settings
                         game.update_sound()
 
-            # ── GAMEOVER ──
+
+            # ── LEADERBOARD ───────────────────────
+            elif state == "leaderboard":
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    state = "menu"
+
+
+            # ── GAME OVER ────────────────────────
             elif state == "gameover":
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     state = "menu"
