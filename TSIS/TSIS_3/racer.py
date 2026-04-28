@@ -105,3 +105,42 @@ class RacerGame:
         elif ptype == "repair":
             self.coins += 5
 
+    # ---------------- UPDATE ----------------
+    def update(self):
+        self.distance += 1
+
+        # traffic
+        for t in self.traffic:
+            t.update()
+            if self.player.colliderect(t.rect):
+                if self.shield:
+                    self.shield = False
+                else:
+                    return "game_over"
+
+        # obstacles
+        for o in self.obstacles:
+            o.update()
+            if self.player.colliderect(o.rect):
+                if self.shield:
+                    self.shield = False
+                else:
+                    return "game_over"
+
+        # powerups
+        for p in self.powerups:
+            p.update()
+            if self.player.colliderect(p.rect):
+                self.apply_powerup(p.type)
+                p.spawn()
+
+        # powerup timer
+        if self.active_powerup == "NITRO":
+            if time.time() > self.powerup_end_time:
+                self.ENEMY_SPEED = max(6, self.ENEMY_SPEED - 4)
+                self.active_powerup = None
+
+        # difficulty scaling
+        self.ENEMY_SPEED = 6 + self.coins // 15
+
+        return "running"
