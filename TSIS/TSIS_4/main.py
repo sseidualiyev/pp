@@ -6,7 +6,7 @@ from settings import load_settings, save_settings
 pygame.init()
 
 WIDTH, HEIGHT = 600, 600
-screen = pygame.display.set_mode((WIDTH,HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
 WHITE = (255,255,255)
@@ -32,7 +32,7 @@ def text(t,x,y,s=30):
     f = pygame.font.SysFont(None,s)
     screen.blit(f.render(t,True,WHITE),(x,y))
 
-# optional sound
+# ---------------- SOUND INIT ----------------
 if sound:
     pygame.mixer.init()
     pygame.mixer.music.load("assets/bg.mp3")
@@ -44,19 +44,66 @@ while running:
     screen.fill(BLACK)
     events = pygame.event.get()
 
-    # ================= MENU =================
-    if state == MENU:
-        text("SNAKE",250,80,50)
-        text("Name: " + username,180,220)
-        text("ENTER = Save Name",160,280)
-        text("G = Play",250,320)
-        text("L = Leaderboard",220,360)
-        text("S = Settings",240,400)
+    # ================= GLOBAL EVENTS (FIXED QUIT) =================
+    for e in events:
+        if e.type == pygame.QUIT:
+            running = False
 
-        for e in events:
-            if e.type == pygame.KEYDOWN:
+        if e.type == pygame.KEYDOWN:
 
-                # ---------------- COLOR ----------------
+            # ESC handling per state
+            if e.key == pygame.K_ESCAPE:
+                if state == GAME:
+                    state = MENU
+                    typing = True
+
+                elif state == LB:
+                    state = MENU
+
+                elif state == SETTINGS:
+                    settings["snake_color"] = list(snake_color)
+                    settings["grid"] = grid
+                    settings["sound"] = sound
+                    save_settings(settings)
+                    state = MENU
+
+            # ---------------- MENU ----------------
+            if state == MENU:
+
+                # typing name
+                if typing:
+                    if e.key == pygame.K_RETURN:
+                        player_id = get_or_create_player(username)
+                        typing = False
+
+                    elif e.key == pygame.K_BACKSPACE:
+                        username = username[:-1]
+
+                    else:
+                        username += e.unicode
+
+                # navigation (ONLY after typing done)
+                if not typing:
+                    if e.key == pygame.K_g:
+                        game.reset()
+                        state = GAME
+
+                    elif e.key == pygame.K_l:
+                        state = LB
+
+                    elif e.key == pygame.K_s:
+                        state = SETTINGS
+
+            # ---------------- GAME ----------------
+            elif state == GAME:
+                if e.key == pygame.K_UP: game.set_direction((0,-1))
+                if e.key == pygame.K_DOWN: game.set_direction((0,1))
+                if e.key == pygame.K_LEFT: game.set_direction((-1,0))
+                if e.key == pygame.K_RIGHT: game.set_direction((1,0))
+
+            # ---------------- SETTINGS ----------------
+            elif state == SETTINGS:
+
                 if e.key == pygame.K_r:
                     snake_color = (255,0,0)
 
@@ -66,14 +113,11 @@ while running:
                 elif e.key == pygame.K_b:
                     snake_color = (0,0,255)
 
-                # ---------------- GRID TOGGLE ----------------
                 elif e.key == pygame.K_f:
-                    grid = not grid   # ON/OFF toggle
+                    grid = not grid
 
-                # ---------------- SOUND TOGGLE ----------------
                 elif e.key == pygame.K_m:
                     sound = not sound
-
                     if sound:
                         pygame.mixer.init()
                         pygame.mixer.music.load("assets/bg.mp3")
@@ -81,50 +125,8 @@ while running:
                     else:
                         pygame.mixer.music.stop()
 
-                # ---------------- EXIT ----------------
-                elif e.key == pygame.K_ESCAPE:
-                    settings["snake_color"] = list(snake_color)
-                    settings["grid"] = grid
-                    settings["sound"] = sound
-                    save_settings(settings)
-                    state = MENU
-
-            if e.type == pygame.KEYDOWN:
-
-                if e.key == pygame.K_RETURN:
-                    player_id = get_or_create_player(username)
-                    typing = False
-
-                elif e.key == pygame.K_g and not typing:
-                    game.reset()
-                    state = GAME
-
-                elif e.key == pygame.K_l and not typing:
-                    state = LB
-
-                elif e.key == pygame.K_s and not typing:
-                    state = SETTINGS
-
-                else:
-                    if typing:
-                        if e.key == pygame.K_BACKSPACE:
-                            username = username[:-1]
-                        else:
-                            username += e.unicode
-
-    # ================= GAME =================
-    elif state == GAME:
-
-        for e in events:
-            if e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_ESCAPE:
-                    state = MENU
-                    typing = True
-
-                if e.key == pygame.K_UP: game.set_direction((0,-1))
-                if e.key == pygame.K_DOWN: game.set_direction((0,1))
-                if e.key == pygame.K_LEFT: game.set_direction((-1,0))
-                if e.key == pygame.K_RIGHT: game.set_direction((1,0))
+    # ================= GAME LOGIC =================
+    if state == GAME:
 
         if game.can_move():
             if game.update() == "game_over":
@@ -134,6 +136,15 @@ while running:
                 username = ""
 
         game.draw(screen, snake_color, grid)
+
+    # ================= MENU UI =================
+    elif state == MENU:
+        text("SNAKE",250,80,50)
+        text("Name: " + username,180,220)
+        text("ENTER = Save Name",160,280)
+        text("G = Play",250,320)
+        text("L = Leaderboard",220,360)
+        text("S = Settings",240,400)
 
     # ================= LEADERBOARD =================
     elif state == LB:
@@ -147,10 +158,6 @@ while running:
 
         text("ESC BACK",240,500)
 
-        for e in events:
-            if e.type==pygame.KEYDOWN and e.key==pygame.K_ESCAPE:
-                state=MENU
-
     # ================= SETTINGS =================
     elif state == SETTINGS:
         text("SETTINGS",240,60,40)
@@ -159,20 +166,6 @@ while running:
         text(f"Grid: {grid}",200,260)
         text(f"Sound: {sound}",200,300)
         text("ESC SAVE & BACK",180,400)
-
-        for e in events:
-            if e.type == pygame.KEYDOWN:
-
-                if e.key == pygame.K_r: snake_color=(255,0,0)
-                if e.key == pygame.K_g: snake_color=(0,255,0)
-                if e.key == pygame.K_b: snake_color=(0,0,255)
-
-                if e.key == pygame.K_ESCAPE:
-                    settings["snake_color"]=list(snake_color)
-                    settings["grid"]=grid
-                    settings["sound"]=sound
-                    save_settings(settings)
-                    state=MENU
 
     pygame.display.flip()
     clock.tick(60)
