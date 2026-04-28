@@ -37,29 +37,31 @@ def main():
                 sys.exit()
 
             # ── MENU ─────────────────────────────
-            if state == "menu":
+        if state == "menu":
 
-                draw_text(screen, "PRESS ENTER TO EDIT NAME", 220)
+            # ── DRAW ──
+            draw_text(screen, "PRESS ENTER TO EDIT NAME", 220)
 
-            # visual name display
             if typing_name:
+                draw_text(screen, "TYPING NAME:", 200)
                 draw_text(screen, player_name + "_", 260)
             else:
                 draw_text(screen, "NAME: " + player_name, 260)
 
-            draw_text(screen, "CLICK TO START", 320)
-            draw_text(screen, "L - LEADERBOARD", 380)
-            draw_text(screen, "S - SETTINGS", 440)
+            draw_text(screen, "PRESS ENTER TO TOGGLE TYPING", 300)
+            draw_text(screen, "CLICK TO START (ONLY IF NAME IS SET)", 340)
+            draw_text(screen, "L - LEADERBOARD", 400)
+            draw_text(screen, "S - SETTINGS", 460)
 
 
-            # ── INPUT HANDLING ──
+            # ── INPUT ──
             if event.type == pygame.KEYDOWN:
 
                 # toggle typing mode
                 if event.key == pygame.K_RETURN:
-                    typing_name = not typing_name   # IMPORTANT FIX
+                    typing_name = not typing_name
 
-                # typing only works in typing mode
+                # typing input only when active
                 elif typing_name:
 
                     if event.key == pygame.K_BACKSPACE:
@@ -69,8 +71,9 @@ def main():
                         if len(player_name) < 12 and event.unicode.isprintable():
                             player_name += event.unicode
 
-                # menu navigation only when NOT typing
+                # menu controls only when NOT typing
                 else:
+
                     if event.key == pygame.K_l:
                         leaderboard = load_leaderboard()
                         state = "leaderboard"
@@ -79,8 +82,11 @@ def main():
                         state = "settings"
 
 
+            # ── CLICK START (FIXED) ──
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if player_name.strip() != "":
+
+                # IMPORTANT: block accidental start while typing
+                if not typing_name and player_name.strip() != "":
                     game = Game(settings)
                     game.player_name = player_name
                     state = "game"
