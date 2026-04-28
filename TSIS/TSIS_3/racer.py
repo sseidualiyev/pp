@@ -59,3 +59,26 @@ class TrafficCar:
             self.spawn()
 
 
+# ---------------- GAME CORE ----------------
+class RacerGame:
+    def __init__(self, assets):
+        self.assets = assets
+
+        self.player = assets["player"].get_rect(center=(240, 700))
+        self.lane_index = 1
+
+        self.coins = 0
+        self.distance = 0
+        self.score = 0
+
+        self.ENEMY_SPEED = 6
+
+        self.traffic = [TrafficCar(assets["enemy"]) for _ in range(2)]
+        self.obstacles = [Obstacle() for _ in range(3)]
+        self.powerups = [PowerUp(assets["coin"])]
+
+        self.active_powerup = None
+        self.powerup_end_time = 0
+
+        self.shield = False
+
