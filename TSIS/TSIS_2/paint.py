@@ -65,6 +65,8 @@ def main():
                     tool = "fill"
                 elif event.key == pygame.K_0:
                     tool = "text"
+                elif event.key == pygame.K_e:
+                    tool = "eraser"
 
                 # BRUSH SIZE
                 elif event.key == pygame.K_1 and pygame.key.get_mods() == 0:
