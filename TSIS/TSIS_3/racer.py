@@ -1,6 +1,6 @@
 import pygame
 import random
-from ui import *
+from ui import lane_center, draw_road, draw_hud, W, H, ORANGE, CYAN, GREEN
 
 ASSETS = "assets"
 
@@ -13,6 +13,7 @@ def load_img(name, size):
 class Game:
     def __init__(self, settings):
         self.settings = settings
+        self.music_path = f"{ASSETS}/bg_music.mp3"
 
         # assets
         self.player_img = load_img("player.png", (50, 80))
@@ -20,11 +21,10 @@ class Game:
         self.coin_img   = load_img("coin.png", (30, 30))
 
         # sound
-        pygame.mixer.music.load(f"{ASSETS}/bg_music.mp3")
         self.crash = pygame.mixer.Sound(f"{ASSETS}/crash.wav")
 
-        self.music_on = settings["sound"]
-        if self.music_on:
+        if self.settings["sound"]:
+            pygame.mixer.music.load(self.music_path)
             pygame.mixer.music.play(-1)
 
         self.reset()
@@ -43,6 +43,7 @@ class Game:
         self.coins = 0
 
         self.lives = 2
+        self.alive = True
 
         self.enemies = []
         self.coins_list = []
@@ -52,7 +53,15 @@ class Game:
         self.power_timer = 0
 
         self.shield = False
-        self.alive = True
+
+    # ─────────────────────────────
+    def update_sound(self):
+        if self.settings["sound"]:
+            if not pygame.mixer.music.get_busy():
+                pygame.mixer.music.load(self.music_path)
+                pygame.mixer.music.play(-1)
+        else:
+            pygame.mixer.music.stop()
 
     # ─────────────────────────────
     def handle_event(self, event):
@@ -137,7 +146,7 @@ class Game:
             elif c["y"] > H:
                 self.coins_list.remove(c)
 
-        # ── powerups ── (ONLY ONE ACTIVE)
+        # ── powerups (ONLY ONE ACTIVE) ──
         for p in self.powerups[:]:
             p["y"] += self.speed
             rect = pygame.Rect(lane_center(p["lane"]), p["y"], 30, 30)
