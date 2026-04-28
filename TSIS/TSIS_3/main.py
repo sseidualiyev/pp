@@ -8,6 +8,8 @@ import random
 W, H = 480, 800
 FPS = 60
 
+LANES = [120, 240, 360]
+
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 RED   = (200,50,50)
@@ -15,19 +17,24 @@ GREEN = (50,200,50)
 YELLOW= (240,200,50)
 
 LEADERBOARD_FILE = "leaderboard.json"
+SETTINGS_FILE = "settings.json"
 
 
-# ── SIMPLE PERSISTENCE ─────────────────────────────
-def load_leaderboard():
-    if not os.path.exists(LEADERBOARD_FILE):
-        return []
-    with open(LEADERBOARD_FILE, "r") as f:
+# ── PERSISTENCE ────────────────────────────────────
+def load_json(file, default):
+    if not os.path.exists(file):
+        return default
+    with open(file, "r") as f:
         return json.load(f)
 
 
-def save_leaderboard(data):
-    with open(LEADERBOARD_FILE, "w") as f:
+def save_json(file, data):
+    with open(file, "w") as f:
         json.dump(data, f, indent=4)
+
+
+def load_leaderboard():
+    return load_json(LEADERBOARD_FILE, [])
 
 
 def add_score(name, score, distance, coins):
@@ -39,63 +46,83 @@ def add_score(name, score, distance, coins):
         "coins": coins
     })
     data = sorted(data, key=lambda x: x["score"], reverse=True)[:10]
-    save_leaderboard(data)
+    save_json(LEADERBOARD_FILE, data)
 
 
-# ── GAME CLASS (VERY SIMPLE) ───────────────────────
+def load_settings():
+    return load_json(SETTINGS_FILE, {
+        "difficulty": "normal",
+        "sound": True
+    })
+
+
+def save_settings(settings):
+    save_json(SETTINGS_FILE, settings)
+
+
+# ── GAME ───────────────────────────────────────────
 class Game:
-    def __init__(self):
+    def __init__(self, settings):
+        self.settings = settings
         self.reset()
 
     def reset(self):
-        self.player_x = W // 2
-        self.speed = 200
+        self.lane = 1
+        self.speed = self.get_speed()
         self.score = 0
         self.distance = 0
         self.coins = 0
         self.alive = True
 
+    def get_speed(self):
+        diff = self.settings["difficulty"]
+        if diff == "easy":
+            return 150
+        elif diff == "hard":
+            return 300
+        return 220
+
     def handle_event(self, event):
-        pass
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                self.lane = max(0, self.lane - 1)
+            if event.key == pygame.K_RIGHT:
+                self.lane = min(2, self.lane + 1)
 
     def update(self, dt):
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_LEFT]:
-            self.player_x -= 200 * dt
-        if keys[pygame.K_RIGHT]:
-            self.player_x += 200 * dt
-
         self.distance += self.speed * dt
         self.score = int(self.distance / 10)
 
-        # random coin
-        if random.random() < 0.01:
+        # random coins
+        if random.random() < 0.02:
             self.coins += 1
 
-        # simple lose condition
-        if self.player_x < 0 or self.player_x > W:
+        # simple lose condition (random crash simulation)
+        if random.random() < 0.002:
             self.alive = False
 
     def draw(self, screen):
-        pygame.draw.rect(screen, WHITE, (self.player_x, 700, 40, 60))
+        x = LANES[self.lane]
+
+        pygame.draw.rect(screen, WHITE, (x, 700, 40, 60))
 
         font = pygame.font.SysFont(None, 30)
         screen.blit(font.render(f"Score: {self.score}", True, WHITE), (10,10))
         screen.blit(font.render(f"Coins: {self.coins}", True, YELLOW), (10,40))
+        screen.blit(font.render(f"Speed: {int(self.speed)}", True, GREEN), (10,70))
 
 
-# ── DRAW FUNCTIONS ─────────────────────────────────
+# ── DRAW ───────────────────────────────────────────
 def draw_text(screen, text, size, x, y, color=WHITE):
     font = pygame.font.SysFont(None, size)
-    img = font.render(text, True, color)
-    screen.blit(img, (x, y))
+    screen.blit(font.render(text, True, color), (x, y))
 
 
 def draw_menu(screen):
     draw_text(screen, "RACER", 60, 150, 100, YELLOW)
     draw_text(screen, "Click to Play", 30, 150, 300)
     draw_text(screen, "L - Leaderboard", 25, 140, 350)
+    draw_text(screen, "S - Settings", 25, 160, 400)
 
 
 def draw_gameover(screen, score):
@@ -109,16 +136,22 @@ def draw_leaderboard(screen, entries):
 
     y = 150
     for i, e in enumerate(entries):
-        name = e.get("name", "Unknown")
-        score = e.get("score", 0)
-        dist = e.get("distance", 0)
-        coins = e.get("coins", 0)
-
-        text = f"{i+1}. {name} | {score} | {dist}m | {coins}"
+        text = f"{i+1}. {e.get('name','?')} | {e.get('score',0)} | {e.get('coins',0)}"
         draw_text(screen, text, 24, 40, y)
         y += 40
 
     draw_text(screen, "ESC to return", 25, 140, 700)
+
+
+def draw_settings(screen, settings):
+    draw_text(screen, "SETTINGS", 50, 140, 100, YELLOW)
+
+    draw_text(screen, f"Difficulty: {settings['difficulty']}", 30, 120, 250)
+    draw_text(screen, f"Sound: {'ON' if settings['sound'] else 'OFF'}", 30, 150, 300)
+
+    draw_text(screen, "D - Change Difficulty", 25, 100, 400)
+    draw_text(screen, "M - Toggle Sound", 25, 120, 440)
+    draw_text(screen, "ESC - Back", 25, 150, 500)
 
 
 # ── MAIN ───────────────────────────────────────────
@@ -128,8 +161,8 @@ def main():
     clock = pygame.time.Clock()
 
     state = "menu"
-    game = Game()
-    username = "Player"
+    settings = load_settings()
+    game = Game(settings)
 
     leaderboard = load_leaderboard()
 
@@ -144,12 +177,14 @@ def main():
 
             if state == "menu":
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    game.reset()
+                    game = Game(settings)
                     state = "game"
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_l:
                         leaderboard = load_leaderboard()
                         state = "leaderboard"
+                    if event.key == pygame.K_s:
+                        state = "settings"
 
             elif state == "game":
                 game.handle_event(event)
@@ -162,11 +197,24 @@ def main():
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     state = "menu"
 
+            elif state == "settings":
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        save_settings(settings)
+                        state = "menu"
+                    if event.key == pygame.K_d:
+                        # cycle difficulty
+                        diff = ["easy", "normal", "hard"]
+                        i = diff.index(settings["difficulty"])
+                        settings["difficulty"] = diff[(i+1)%3]
+                    if event.key == pygame.K_m:
+                        settings["sound"] = not settings["sound"]
+
         # ── UPDATE ──
         if state == "game":
             game.update(dt)
             if not game.alive:
-                add_score(username, game.score, game.distance, game.coins)
+                add_score("Player", game.score, game.distance, game.coins)
                 state = "gameover"
 
         # ── DRAW ──
@@ -183,6 +231,9 @@ def main():
 
         elif state == "leaderboard":
             draw_leaderboard(screen, leaderboard)
+
+        elif state == "settings":
+            draw_settings(screen, settings)
 
         pygame.display.flip()
 

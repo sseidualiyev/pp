@@ -1,14 +1,20 @@
 [
-  {
-    "name": "s",
-    "score": 1326,
-    "distance": 332,
-    "coins": 116
-  },
-  {
-    "name": "shyngys",
-    "score": 1233,
-    "distance": 287,
-    "coins": 109
-  }
+    {
+        "name": "s",
+        "score": 1326,
+        "distance": 332,
+        "coins": 116
+    },
+    {
+        "name": "shyngys",
+        "score": 1233,
+        "distance": 287,
+        "coins": 109
+    },
+    {
+        "name": "Player",
+        "score": 147,
+        "distance": 1476,
+        "coins": 0
+    }
 ]
