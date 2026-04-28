@@ -68,11 +68,9 @@ def main():
                             game.player_name = player_name
                             state = "game"
 
-
             # ── GAME ─────────────────────────────
             elif state == "game":
                 game.handle_event(event)
-
 
             # ── SETTINGS ─────────────────────────
             elif state == "settings":
@@ -92,19 +90,17 @@ def main():
                         game.settings = settings
                         game.update_sound()
 
-
             # ── LEADERBOARD ───────────────────────
             elif state == "leaderboard":
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     state = "menu"
 
-
-            # ── GAME OVER ────────────────────────
+            # ── GAMEOVER ────────────────────────
             elif state == "gameover":
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     state = "menu"
 
-        # ── UPDATE ──
+        # ── UPDATE ─────────────────────────────
         if state == "game":
             game.update(dt)
 
@@ -113,7 +109,7 @@ def main():
                 pygame.mixer.music.stop()
                 state = "gameover"
 
-        # ── DRAW ──
+        # ── DRAW ─────────────────────────────
         screen.fill(BLACK)
 
         if state == "menu":
@@ -133,8 +129,6 @@ def main():
             for i, e in enumerate(leaderboard):
                 draw_text(screen, f"{i+1}. {e['name']} {e['score']}", y)
                 y += 40
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                state = "menu"
 
         elif state == "settings":
             draw_text(screen, "SETTINGS", 200)
