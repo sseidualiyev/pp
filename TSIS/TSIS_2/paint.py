@@ -181,47 +181,47 @@ def main():
             if tool == "line":
                 pygame.draw.line(screen, color, start_pos, preview_pos, brush_size)
 
-        elif tool == "rectangle":
-            rect = pygame.Rect(
-                start_pos[0],
-                start_pos[1],
-                preview_pos[0] - start_pos[0],
-                preview_pos[1] - start_pos[1]
-            )
-            pygame.draw.rect(screen, color, rect, brush_size)
+            elif tool == "rectangle":
+                rect = pygame.Rect(
+                    start_pos[0],
+                    start_pos[1],
+                    preview_pos[0] - start_pos[0],
+                    preview_pos[1] - start_pos[1]
+                )
+                pygame.draw.rect(screen, color, rect, brush_size)
 
-        elif tool == "circle":
-            dx = preview_pos[0] - start_pos[0]
-            dy = preview_pos[1] - start_pos[1]
-            radius = int((dx*2 + dy*2) ** 0.5)
-            pygame.draw.circle(screen, color, start_pos, radius, brush_size)
+            elif tool == "circle":
+                dx = preview_pos[0] - start_pos[0]
+                dy = preview_pos[1] - start_pos[1]
+                radius = int((dx*2 + dy*2) ** 0.5)
+                pygame.draw.circle(screen, color, start_pos, radius, brush_size)
 
-        elif tool == "square":
-            size = min(abs(preview_pos[0]-start_pos[0]),
-                    abs(preview_pos[1]-start_pos[1]))
-            rect = pygame.Rect(start_pos[0], start_pos[1], size, size)
-            pygame.draw.rect(screen, color, rect, brush_size)
+            elif tool == "square":
+                size = min(abs(preview_pos[0]-start_pos[0]),
+                        abs(preview_pos[1]-start_pos[1]))
+                rect = pygame.Rect(start_pos[0], start_pos[1], size, size)
+                pygame.draw.rect(screen, color, rect, brush_size)
 
-        elif tool == "rtriangle":
-            points = [start_pos, (preview_pos[0], start_pos[1]), preview_pos]
-            pygame.draw.polygon(screen, color, points, brush_size)
+            elif tool == "rtriangle":
+                points = [start_pos, (preview_pos[0], start_pos[1]), preview_pos]
+                pygame.draw.polygon(screen, color, points, brush_size)
 
-        elif tool == "etriangle":
-            x1, y1 = start_pos
-            x2, y2 = preview_pos
-            base_mid = ((x1 + x2)//2, y1)
-            height = abs(x2 - x1) * (3 ** 0.5) / 2
-            top = (base_mid[0], int(y1 - height))
-            pygame.draw.polygon(screen, color, [start_pos, preview_pos, top], brush_size)
+            elif tool == "etriangle":
+                x1, y1 = start_pos
+                x2, y2 = preview_pos
+                base_mid = ((x1 + x2)//2, y1)
+                height = abs(x2 - x1) * (3 ** 0.5) / 2
+                top = (base_mid[0], int(y1 - height))
+                pygame.draw.polygon(screen, color, [start_pos, preview_pos, top], brush_size)
 
-        elif tool == "rhombus":
-            x1, y1 = start_pos
-            x2, y2 = preview_pos
-            cx = (x1 + x2)//2
-            cy = (y1 + y2)//2
-            points = [(cx, y1), (x2, cy), (cx, y2), (x1, cy)]
-            pygame.draw.polygon(screen, color, points, brush_size)
-        
+            elif tool == "rhombus":
+                x1, y1 = start_pos
+                x2, y2 = preview_pos
+                cx = (x1 + x2)//2
+                cy = (y1 + y2)//2
+                points = [(cx, y1), (x2, cy), (cx, y2), (x1, cy)]
+                pygame.draw.polygon(screen, color, points, brush_size)
+
         pygame.display.flip()
         clock.tick(60)
 
