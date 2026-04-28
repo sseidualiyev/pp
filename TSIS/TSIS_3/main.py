@@ -37,7 +37,7 @@ class Game:
         self.coin_img   = load_img("coin.png",   (30, 30))
 
         # sounds
-        pygame.mixer.music.load(os.path.join(ASSETS, "bg_music.mp3"))
+        pygame.mixer.music.load(os.path.join(ASSETS, "bg_music.m4a"))
         self.crash_sound = pygame.mixer.Sound(os.path.join(ASSETS, "crash.wav"))
 
         if self.settings["sound"]:
