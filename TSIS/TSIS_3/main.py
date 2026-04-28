@@ -17,3 +17,11 @@ assets = {
     "coin": pygame.image.load("assets/coin.png").convert_alpha()
 }
 
+game = RacerGame(assets)
+ui = UI(screen, font)
+
+settings = load_settings()
+
+state = "menu"
+running = True
+
