@@ -98,3 +98,73 @@ def main():
                     else:
                         text += event.unicode
 
+            # =========================
+            # MOUSE DOWN
+            # =========================
+            if event.type == pygame.MOUSEBUTTONDOWN:
+
+                if event.button == 1:
+                    drawing = True
+                    start_pos = event.pos
+                    last_pos = event.pos
+
+                    # FLOOD FILL
+                    if tool == "fill":
+                        target = canvas.get_at(event.pos)
+                        tools.flood_fill(canvas, event.pos[0], event.pos[1], target, color)
+
+                    # TEXT TOOL
+                    elif tool == "text":
+                        text_pos = event.pos
+                        typing = True
+                        text = ""
+
+            # =========================
+            # MOUSE UP
+            # =========================
+            if event.type == pygame.MOUSEBUTTONUP:
+
+                if event.button == 1 and drawing:
+
+                    end_pos = event.pos
+
+                    if tool == "line":
+                        tools.draw_line(canvas, color, start_pos, end_pos, brush_size)
+
+                    drawing = False
+
+            # =========================
+            # MOUSE MOVE
+            # =========================
+            if event.type == pygame.MOUSEMOTION:
+
+                if drawing:
+
+                    if tool == "brush":
+                        tools.draw_pencil(canvas, color, last_pos, event.pos, brush_size)
+                        last_pos = event.pos
+
+                    elif tool == "eraser":
+                        pygame.draw.circle(canvas, (0, 0, 0), event.pos, eraser_size)
+
+        # =========================
+        # RENDER
+        # =========================
+        screen.blit(canvas, (0, 0))
+
+        # LINE PREVIEW
+        if drawing and tool == "line":
+            pygame.draw.line(screen, color, start_pos, pygame.mouse.get_pos(), brush_size)
+
+        # TEXT PREVIEW
+        if typing:
+            preview = font.render(text, True, color)
+            screen.blit(preview, text_pos)
+
+        pygame.display.flip()
+        clock.tick(60)
+
+    pygame.quit()
+
+
+main()
