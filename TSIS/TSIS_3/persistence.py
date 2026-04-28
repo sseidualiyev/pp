@@ -34,3 +34,11 @@ def save_leaderboard(data):
         json.dump(data, f, indent=4)
 
 
+def add_score(name, score, distance):
+    board = load_leaderboard()
+    board.append({
+        "name": name,
+        "score": score,
+        "distance": distance
+    })
+    save_leaderboard(board)
