@@ -9,3 +9,10 @@ def draw_pencil(surface, color, last_pos, current_pos, size):
     pygame.draw.line(surface, color, last_pos, current_pos, size)
 
 
+# =========================
+# LINE TOOL
+# =========================
+def draw_line(surface, color, start_pos, end_pos, size):
+    pygame.draw.line(surface, color, start_pos, end_pos, size)
+
+
