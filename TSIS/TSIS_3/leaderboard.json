@@ -13,6 +13,12 @@
     },
     {
         "name": "Player",
+        "score": 736,
+        "distance": 7360,
+        "coins": 9
+    },
+    {
+        "name": "Player",
         "score": 523,
         "distance": 5238,
         "coins": 13
@@ -52,11 +58,5 @@
         "score": 83,
         "distance": 831,
         "coins": 0
-    },
-    {
-        "name": "Player",
-        "score": 39,
-        "distance": 392,
-        "coins": 2
     }
 ]
