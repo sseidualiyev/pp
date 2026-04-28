@@ -36,6 +36,11 @@
     },
     {
         "name": "PLAYER",
+        "score": 5,
+        "distance": 444
+    },
+    {
+        "name": "PLAYER",
         "score": 0,
         "distance": 36
     },
@@ -43,10 +48,5 @@
         "name": "PLAYER",
         "score": 0,
         "distance": 48
-    },
-    {
-        "name": "PLAYER",
-        "score": 0,
-        "distance": 43
     }
 ]

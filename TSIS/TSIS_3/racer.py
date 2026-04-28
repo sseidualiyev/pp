@@ -73,7 +73,7 @@ class RacerGame:
         self.distance = 0
         self.score = 0
 
-        self.base_speed = 4
+        self.base_speed = 1
         self.ENEMY_SPEED = self.base_speed
 
         self.traffic = [TrafficCar(assets["enemy"]) for _ in range(2)]
@@ -97,7 +97,7 @@ class RacerGame:
     # ---------------- POWERUPS ----------------
     def apply_powerup(self, ptype):
         if ptype == "nitro":
-            self.ENEMY_SPEED += 4
+            self.ENEMY_SPEED += 1
             self.active_powerup = "NITRO"
             self.powerup_end_time = time.time() + 4
 
@@ -112,8 +112,7 @@ class RacerGame:
     def update(self):
         self.distance += 1
 
-        # VERY IMPORTANT: keep this small
-        global_speed = 2 + (self.distance / 3000)
+        global_speed = 1 + (self.distance / 3000)
 
         # traffic
         for t in self.traffic:
