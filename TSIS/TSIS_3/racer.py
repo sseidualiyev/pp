@@ -26,3 +26,19 @@ class PowerUp:
             self.spawn()
 
 
+# ---------------- OBSTACLES ----------------
+class Obstacle:
+    def __init__(self):
+        self.spawn()
+
+    def spawn(self):
+        self.lane = random.choice(LANES)
+        self.rect = pygame.Rect(self.lane, -100, 50, 80)
+        self.speed = random.randint(6, 10)
+
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.top > SCREEN_HEIGHT:
+            self.spawn()
+
+
