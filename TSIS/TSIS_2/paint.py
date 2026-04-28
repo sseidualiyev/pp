@@ -15,7 +15,6 @@ def main():
     color = (0, 0, 255)
 
     brush_size = 5
-    eraser_size = 15
 
     drawing = False
     start_pos = None
@@ -45,27 +44,27 @@ def main():
                     running = False
 
                 # TOOLS
-                elif event.key == pygame.K_1:
+                elif event.key == pygame.K_q:
                     tool = "brush"
-                elif event.key == pygame.K_2:
+                elif event.key == pygame.K_w:
                     tool = "line"
-                elif event.key == pygame.K_3:
-                    tool = "rectangle"
-                elif event.key == pygame.K_4:
-                    tool = "circle"
-                elif event.key == pygame.K_5:
-                    tool = "square"
-                elif event.key == pygame.K_6:
-                    tool = "rtriangle"
-                elif event.key == pygame.K_7:
-                    tool = "etriangle"
-                elif event.key == pygame.K_8:
-                    tool = "rhombus"
-                elif event.key == pygame.K_9:
-                    tool = "fill"
-                elif event.key == pygame.K_0:
-                    tool = "text"
                 elif event.key == pygame.K_e:
+                    tool = "rectangle"
+                elif event.key == pygame.K_r:
+                    tool = "circle"
+                elif event.key == pygame.K_t:
+                    tool = "square"
+                elif event.key == pygame.K_y:
+                    tool = "rtriangle"
+                elif event.key == pygame.K_u:
+                    tool = "etriangle"
+                elif event.key == pygame.K_i:
+                    tool = "rhombus"
+                elif event.key == pygame.K_o:
+                    tool = "fill"
+                elif event.key == pygame.K_p:
+                    tool = "text"
+                elif event.key == pygame.K_l:
                     tool = "eraser"
 
                 # BRUSH SIZE
@@ -168,8 +167,8 @@ def main():
                         tools.draw_pencil(canvas, color, last_pos, event.pos, brush_size)
                         last_pos = event.pos
 
-                    elif tool == "eraser":
-                        pygame.draw.circle(canvas, (0, 0, 0), event.pos, eraser_size)
+                    if tool == "eraser":
+                        pygame.draw.circle(canvas, (0, 0, 0), event.pos, brush_size)
 
         # =========================
         # DRAW
