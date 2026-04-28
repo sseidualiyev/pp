@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 
 WIDTH, HEIGHT = 600, 600
 CELL = 20
@@ -7,7 +8,6 @@ ROWS = WIDTH // CELL
 
 RED = (255,0,0)
 DARK_RED = (120,0,0)
-
 ORANGE = (255,165,0)
 CYAN = (0,255,255)
 GREEN = (0,255,0)
@@ -23,11 +23,11 @@ class SnakeGame:
 
         self.score = 0
         self.level = 1
+        self.food_eaten = 0
 
         self.food = self.spawn_food()
         self.poison = self.spawn_poison()
 
-        # ---------------- POWERUPS ----------------
         self.power = None
         self.power_type = None
         self.power_spawn_time = 0
@@ -40,11 +40,11 @@ class SnakeGame:
         self.move_delay = 150
         self.last_move = pygame.time.get_ticks()
 
-    # ---------------- SPAWN FOOD ----------------
+    # ---------------- SPAWN ----------------
     def spawn_food(self):
         return {
             "pos": (random.randint(0,ROWS-1), random.randint(0,ROWS-1)),
-            "size": random.randint(1,3)   # NEW FEATURE
+            "size": random.randint(1,3)
         }
 
     def spawn_poison(self):
@@ -68,10 +68,10 @@ class SnakeGame:
                     break
         return obs
 
-    # ---------------- SPEED CONTROL ----------------
+    # ---------------- MOVEMENT ----------------
     def can_move(self):
         now = pygame.time.get_ticks()
-        if now - self.last_move > self.move_delay:
+        if now - self.last_move >= self.move_delay:
             self.last_move = now
             return True
         return False
@@ -89,17 +89,17 @@ class SnakeGame:
 
         self.update_level()
 
-        head = (self.snake[0][0]+self.direction[0],
-                self.snake[0][1]+self.direction[1])
+        head = (self.snake[0][0] + self.direction[0],
+                self.snake[0][1] + self.direction[1])
 
-        # COLLISION
+        # ---------------- COLLISION ----------------
         if head in self.snake[1:] or head in self.obstacles:
             if self.shield:
                 self.shield = False
             else:
                 return "game_over"
 
-        if head[0]<0 or head[1]<0 or head[0]>=ROWS or head[1]>=ROWS:
+        if head[0] < 0 or head[1] < 0 or head[0] >= ROWS or head[1] >= ROWS:
             if self.shield:
                 self.shield = False
             else:
@@ -109,36 +109,39 @@ class SnakeGame:
 
         # ---------------- FOOD ----------------
         if head == self.food["pos"]:
-            self.score += self.food["size"]   # BIGGER FOOD = MORE SCORE
+            self.score += self.food["size"]
             self.food = self.spawn_food()
         else:
             self.snake.pop()
 
-        # ---------------- POISON ----------------
+        # ---------------- POISON (FIXED) ----------------
         if head == self.poison:
             for _ in range(2):
-                if len(self.snake)>1:
+                if len(self.snake) > 0:
                     self.snake.pop()
+
             self.poison = self.spawn_poison()
 
-        # ---------------- POWERUP SPAWN ----------------
+            if len(self.snake) <= 1:
+                return "game_over"
+
+        # ---------------- POWER SPAWN ----------------
         if self.power is None:
             if random.randint(1,120) == 1:
                 self.power = self.spawn_power()
                 self.power_type = random.choice(["speed","slow","shield"])
                 self.power_spawn_time = pygame.time.get_ticks()
 
-        # remove power if not taken
+        # expire power
         if self.power and pygame.time.get_ticks() - self.power_spawn_time > 8000:
             self.power = None
             self.power_type = None
 
-        # ---------------- POWERUP PICKUP ----------------
+        # ---------------- PICK POWER ----------------
         if self.power and head == self.power:
 
             now = pygame.time.get_ticks()
 
-            # only one active effect at a time
             if self.power_type == "speed":
                 self.move_delay = 70
                 self.power_end_time = now + 5000
@@ -161,10 +164,10 @@ class SnakeGame:
 
     # ---------------- INPUT ----------------
     def set_direction(self, d):
-        if d==(0,-1) and self.direction!=(0,1): self.direction=d
-        if d==(0,1) and self.direction!=(0,-1): self.direction=d
-        if d==(-1,0) and self.direction!=(1,0): self.direction=d
-        if d==(1,0) and self.direction!=(-1,0): self.direction=d
+        if d == (0,-1) and self.direction != (0,1): self.direction = d
+        if d == (0,1) and self.direction != (0,-1): self.direction = d
+        if d == (-1,0) and self.direction != (1,0): self.direction = d
+        if d == (1,0) and self.direction != (-1,0): self.direction = d
 
     # ---------------- DRAW ----------------
     def draw(self, screen, color, grid=False):
@@ -175,27 +178,26 @@ class SnakeGame:
                     pygame.draw.rect(screen,(25,25,25),
                         (x*CELL,y*CELL,CELL,CELL),1)
 
-        # snake
         for s in self.snake:
             pygame.draw.rect(screen, color,
                 (s[0]*CELL,s[1]*CELL,CELL,CELL))
 
-        # food (variable size)
+        # FOOD (variable size)
         size = self.food["size"] * CELL
         pygame.draw.rect(screen, RED,
             (self.food["pos"][0]*CELL,self.food["pos"][1]*CELL,size,size))
 
-        # poison
+        # POISON
         pygame.draw.rect(screen, DARK_RED,
             (self.poison[0]*CELL,self.poison[1]*CELL,CELL,CELL))
 
-        # powerups
+        # POWER
         if self.power:
             col = ORANGE if self.power_type=="speed" else CYAN if self.power_type=="slow" else GREEN
-            pygame.draw.rect(screen,col,
+            pygame.draw.rect(screen, col,
                 (self.power[0]*CELL,self.power[1]*CELL,CELL,CELL))
 
-        # obstacles
+        # OBSTACLES
         for o in self.obstacles:
             pygame.draw.rect(screen, GRAY,
                 (o[0]*CELL,o[1]*CELL,CELL,CELL))
