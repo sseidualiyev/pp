@@ -44,7 +44,7 @@ def run_main_menu(surf, clock, fonts):
             y = (i * 80 + pygame.time.get_ticks() // 20) % H
             pygame.draw.rect(surf, (200, 180, 40, 100), (W//2 - 4, y, 8, 40))
 
-        screen_title(surf, font_big, font_med, "RACER", "TSIS 3 Edition")
+        screen_title(surf, font_big, font_med, "RACER")
 
         hovers = get_mouse_hover(btns)
         for i, (btn, lbl) in enumerate(zip(btns, labels)):
@@ -308,7 +308,7 @@ def run_settings_screen(surf, clock, fonts, settings):
 def main():
     pygame.init()
     surf  = pygame.display.set_mode((W, H))
-    pygame.display.set_caption("RACER – TSIS 3")
+    pygame.display.set_caption("RACER")
     clock = pygame.time.Clock()
 
     font_big = pygame.font.SysFont("consolas", 42, bold=True)
