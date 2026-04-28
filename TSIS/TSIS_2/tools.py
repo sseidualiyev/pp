@@ -59,3 +59,25 @@ def save_canvas(surface):
 def render_text(surface, text, font, color, pos):
     img = font.render(text, True, color)
     surface.blit(img, pos)
+
+
+# =========================
+# RECTANGLE
+# =========================
+def draw_rectangle(surface, color, start, end, size):
+    rect = pygame.Rect(start[0], start[1],
+                       end[0] - start[0],
+                       end[1] - start[1])
+    pygame.draw.rect(surface, color, rect, size)
+
+
+# =========================
+# CIRCLE
+# =========================
+def draw_circle(surface, color, start, end, size):
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    radius = int((dx*2 + dy*2) ** 0.5)
+    pygame.draw.circle(surface, color, start, radius, size)
+
+
