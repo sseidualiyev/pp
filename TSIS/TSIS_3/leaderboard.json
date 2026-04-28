@@ -41,12 +41,12 @@
     },
     {
         "name": "PLAYER",
-        "score": 0,
-        "distance": 36
+        "score": 5,
+        "distance": 1041
     },
     {
         "name": "PLAYER",
         "score": 0,
-        "distance": 48
+        "distance": 36
     }
 ]
