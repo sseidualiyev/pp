@@ -51,7 +51,7 @@ class TrafficCar:
     def spawn(self):
         self.lane = random.choice(LANES)
         self.rect = self.image.get_rect(center=(self.lane, -200))
-        self.speed = random.randint(7, 12)
+        self.speed = random.uniform(1.0, 1.8)
 
     def update(self):
         self.rect.y += self.speed
@@ -110,9 +110,12 @@ class RacerGame:
     def update(self):
         self.distance += 1
 
+        speed_factor = self.ENEMY_SPEED
+
         # traffic
         for t in self.traffic:
             t.update()
+            t.rect.y += t.speed * speed_factor
             if self.player.colliderect(t.rect):
                 if self.shield:
                     self.shield = False
@@ -122,6 +125,7 @@ class RacerGame:
         # obstacles
         for o in self.obstacles:
             o.update()
+            o.rect.y += o.speed * speed_factor
             if self.player.colliderect(o.rect):
                 if self.shield:
                     self.shield = False
@@ -142,6 +146,6 @@ class RacerGame:
                 self.active_powerup = None
 
         # difficulty scaling
-        self.ENEMY_SPEED = 6 + self.coins // 15
+        self.ENEMY_SPEED = 4 + self.coins // 15
 
         return "running"
