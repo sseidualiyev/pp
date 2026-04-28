@@ -21,3 +21,10 @@ def save_settings(settings):
         json.dump(settings, f, indent=4)
 
 
+def load_leaderboard():
+    if not os.path.exists(LEADERBOARD_FILE):
+        return []
+    with open(LEADERBOARD_FILE, "r") as f:
+        return json.load(f)
+
+
