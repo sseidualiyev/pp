@@ -42,3 +42,20 @@ class Obstacle:
             self.spawn()
 
 
+# ---------------- TRAFFIC ----------------
+class TrafficCar:
+    def __init__(self, image):
+        self.image = image
+        self.spawn()
+
+    def spawn(self):
+        self.lane = random.choice(LANES)
+        self.rect = self.image.get_rect(center=(self.lane, -200))
+        self.speed = random.randint(7, 12)
+
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.top > SCREEN_HEIGHT:
+            self.spawn()
+
+
