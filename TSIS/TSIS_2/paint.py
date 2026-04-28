@@ -19,6 +19,7 @@ def main():
     drawing = False
     start_pos = None
     last_pos = None
+    preview_pos = None
 
     # TEXT
     typing = False
