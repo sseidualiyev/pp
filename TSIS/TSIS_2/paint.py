@@ -162,7 +162,6 @@ def main():
             # MOUSE MOVE
             # =========================
             if event.type == pygame.MOUSEMOTION:
-
                 if drawing:
                     preview_pos = event.pos
                     if tool == "brush":
@@ -177,7 +176,7 @@ def main():
         # =========================
         screen.blit(canvas, (0, 0))
 
-        if drawing and preview_pos:
+        if drawing and preview_pos is not None:
 
             if tool == "line":
                 pygame.draw.line(screen, color, start_pos, preview_pos, brush_size)
